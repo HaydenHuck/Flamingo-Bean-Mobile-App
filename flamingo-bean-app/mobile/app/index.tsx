@@ -9,6 +9,7 @@ import { AdminProductFormScreen } from "../screens/AdminProductFormScreen";
 import { AdminProductsScreen } from "../screens/AdminProductsScreen";
 import { CartScreen } from "../screens/CartScreen";
 import { OrderConfirmationScreen } from "../screens/OrderConfirmationScreen";
+import { PaymentPendingScreen } from "../screens/PaymentPendingScreen";
 import { ProductDetailScreen } from "../screens/ProductDetailScreen";
 import { ProductsScreen } from "../screens/ProductsScreen";
 import type { RootStackParamList } from "../types/navigation";
@@ -52,6 +53,14 @@ export default function AppRoot() {
             options={{
               headerRight: undefined,
               title: "Order Confirmed",
+            }}
+          />
+          <Stack.Screen
+            name="PaymentPending"
+            component={PaymentPendingScreen}
+            options={{
+              headerRight: undefined,
+              title: "Payment Pending",
             }}
           />
           <Stack.Screen

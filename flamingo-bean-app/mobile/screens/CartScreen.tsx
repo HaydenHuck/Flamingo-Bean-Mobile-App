@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -12,7 +13,7 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { useCart, type CartItem } from "../contexts/CartContext";
-import { createOrder } from "../services/orders";
+import { createCheckout } from "../services/checkout";
 import type { RootStackParamList } from "../types/navigation";
 
 type CartScreenProps = NativeStackScreenProps<RootStackParamList, "Cart">;
@@ -36,6 +37,7 @@ export function CartScreen({ navigation }: CartScreenProps) {
   const [fulfillmentType, setFulfillmentType] = useState("pickup");
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
 
   const isEmpty = items.length === 0;
   const canCheckout = !isEmpty && !isCheckingOut && customerName.trim().length > 0 && customerEmail.trim().length > 0;
@@ -48,17 +50,20 @@ export function CartScreen({ navigation }: CartScreenProps) {
     try {
       setIsCheckingOut(true);
       setCheckoutError(null);
-      const order = await createOrder({
+      setCheckoutMessage("Preparing secure Square checkout...");
+      const checkout = await createCheckout({
         customerEmail: customerEmail.trim(),
         customerName: customerName.trim(),
         fulfillmentType,
         items,
       });
 
-      clearCart();
-      navigation.navigate("OrderConfirmation", { order });
+      setCheckoutMessage("Redirecting to secure Square checkout...");
+      await Linking.openURL(checkout.checkout_url);
+      navigation.navigate("PaymentPending", { checkout });
     } catch {
-      setCheckoutError("We could not create your order. Please check the backend connection and try again.");
+      setCheckoutError("We could not start Square checkout. Please check the backend connection and try again.");
+      setCheckoutMessage(null);
     } finally {
       setIsCheckingOut(false);
     }
@@ -146,6 +151,12 @@ export function CartScreen({ navigation }: CartScreenProps) {
             {checkoutError ? (
               <View style={styles.errorCard}>
                 <Text style={styles.errorText}>{checkoutError}</Text>
+              </View>
+            ) : null}
+
+            {checkoutMessage ? (
+              <View style={styles.checkoutMessageCard}>
+                <Text style={styles.checkoutMessageText}>{checkoutMessage}</Text>
               </View>
             ) : null}
 
@@ -469,6 +480,20 @@ const styles = StyleSheet.create({
     color: "#9f3528",
     fontSize: 14,
     fontWeight: "800",
+    lineHeight: 20,
+  },
+  checkoutMessageCard: {
+    backgroundColor: "#e7f4ef",
+    borderColor: "#9fcfbd",
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 14,
+    padding: 13,
+  },
+  checkoutMessageText: {
+    color: "#0f766e",
+    fontSize: 14,
+    fontWeight: "900",
     lineHeight: 20,
   },
 });

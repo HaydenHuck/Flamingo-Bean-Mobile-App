@@ -16,7 +16,16 @@ import type { AdminOrderDetail, AdminOrderItem, OrderStatus } from "../types/ord
 
 type AdminOrderDetailScreenProps = NativeStackScreenProps<RootStackParamList, "AdminOrderDetail">;
 
-const ORDER_STATUSES: OrderStatus[] = ["received", "preparing", "ready", "completed", "canceled"];
+const ORDER_STATUSES: OrderStatus[] = [
+  "pending_payment",
+  "paid",
+  "payment_failed",
+  "received",
+  "preparing",
+  "ready",
+  "completed",
+  "canceled",
+];
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -94,6 +103,7 @@ export function AdminOrderDetailScreen({ route }: AdminOrderDetailScreenProps) {
 
               <View style={styles.detailRows}>
                 <DetailRow label="Status" value={formatLabel(order.status)} />
+                <DetailRow label="Payment" value={formatLabel(order.payment_status)} />
                 <DetailRow label="Fulfillment" value={formatLabel(order.fulfillment_type)} />
                 <DetailRow label="Subtotal" value={currencyFormatter.format(order.subtotal)} />
                 <DetailRow label="Tax" value={currencyFormatter.format(order.tax)} />
