@@ -10,4 +10,8 @@ export type RootStackParamList = {
   OrderConfirmation: {
     order: OrderConfirmation;
   };
+  AdminOrders: undefined;
+  AdminOrderDetail: {
+    orderId: string;
+  };
 };

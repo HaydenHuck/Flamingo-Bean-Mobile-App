@@ -36,3 +36,31 @@ class OrderConfirmation(BaseModel):
     total: float
     created_at: str
 
+
+class AdminOrderSummary(BaseModel):
+    order_id: str
+    customer_name: str
+    customer_email: str
+    fulfillment_type: str
+    status: str
+    subtotal: float
+    tax: float
+    total: float
+    created_at: str
+
+
+class AdminOrderItem(BaseModel):
+    product_id: int
+    name: str
+    price: float
+    quantity: int
+    size: str
+    line_total: float
+
+
+class AdminOrderDetail(AdminOrderSummary):
+    items: list[AdminOrderItem]
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str

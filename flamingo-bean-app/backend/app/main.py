@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import SessionLocal, init_db
+from app.routes.admin import router as admin_router
 from app.routes.orders import router as orders_router
 from app.routes.products import router as products_router
 from app.services.seed import seed_products
@@ -43,6 +44,7 @@ app.add_middleware(
 
 app.include_router(products_router)
 app.include_router(orders_router)
+app.include_router(admin_router)
 
 
 @app.get("/health")

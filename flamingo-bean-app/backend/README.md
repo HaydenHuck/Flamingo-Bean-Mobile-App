@@ -55,4 +55,12 @@ POST /orders
 GET /orders/{order_id}
 ```
 
-Square checkout, authentication, and admin tooling are intentionally not included yet.
+Admin orders:
+
+```bash
+GET /admin/orders
+GET /admin/orders/{order_id}
+PUT /admin/orders/{order_id}/status
+```
+
+Square checkout and authentication are intentionally not included yet.
