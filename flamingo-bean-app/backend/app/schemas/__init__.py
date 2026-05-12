@@ -8,7 +8,7 @@ from app.schemas.order import (
     OrderItemResponse,
     OrderStatusUpdate,
 )
-from app.schemas.product import ProductResponse
+from app.schemas.product import ProductActiveUpdate, ProductCreate, ProductResponse, ProductUpdate
 
 __all__ = [
     "OrderConfirmation",
@@ -19,5 +19,8 @@ __all__ = [
     "AdminOrderItem",
     "AdminOrderSummary",
     "OrderStatusUpdate",
+    "ProductActiveUpdate",
+    "ProductCreate",
     "ProductResponse",
+    "ProductUpdate",
 ]

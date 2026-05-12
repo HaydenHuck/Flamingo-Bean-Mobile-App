@@ -14,4 +14,10 @@ export type RootStackParamList = {
   AdminOrderDetail: {
     orderId: string;
   };
+  AdminProducts: undefined;
+  AdminProductForm:
+    | {
+        product?: Product;
+      }
+    | undefined;
 };

@@ -10,7 +10,7 @@ router = APIRouter(tags=["products"])
 
 @router.get("/products", response_model=list[ProductResponse])
 def get_products(db: Session = Depends(get_db)) -> list[ProductResponse]:
-    products = db.query(Product).order_by(Product.id).all()
+    products = db.query(Product).filter(Product.active.is_(True)).order_by(Product.id).all()
 
     return [to_product_response(product) for product in products]
 
