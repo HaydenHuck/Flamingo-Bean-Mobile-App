@@ -27,6 +27,7 @@ class OrderItemResponse(BaseModel):
 class OrderConfirmation(BaseModel):
     order_id: str
     status: str
+    payment_status: str
     customer_name: str
     customer_email: str
     fulfillment_type: str
@@ -43,6 +44,7 @@ class AdminOrderSummary(BaseModel):
     customer_email: str
     fulfillment_type: str
     status: str
+    payment_status: str
     subtotal: float
     tax: float
     total: float

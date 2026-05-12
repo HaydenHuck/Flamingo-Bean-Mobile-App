@@ -1,5 +1,5 @@
 import type { Product } from "./product";
-import type { OrderConfirmation } from "./order";
+import type { CheckoutSession, OrderConfirmation } from "./order";
 
 export type RootStackParamList = {
   Products: undefined;
@@ -9,6 +9,9 @@ export type RootStackParamList = {
   Cart: undefined;
   OrderConfirmation: {
     order: OrderConfirmation;
+  };
+  PaymentPending: {
+    checkout: CheckoutSession;
   };
   AdminOrders: undefined;
   AdminOrderDetail: {

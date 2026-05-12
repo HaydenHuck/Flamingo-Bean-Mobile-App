@@ -13,6 +13,10 @@ class Order(Base):
     customer_name = Column(String(255), nullable=False)
     customer_email = Column(String(255), nullable=False)
     fulfillment_type = Column(String(80), nullable=False)
+    payment_status = Column(String(40), nullable=False, default="paid")
+    square_payment_link_id = Column(String(120), nullable=True)
+    square_order_id = Column(String(120), nullable=True)
+    square_checkout_url = Column(String(500), nullable=True)
     subtotal = Column(Numeric(10, 2), nullable=False)
     tax = Column(Numeric(10, 2), nullable=False)
     total = Column(Numeric(10, 2), nullable=False)
@@ -36,4 +40,3 @@ class OrderItem(Base):
 
     order = relationship("Order", back_populates="items")
     product = relationship("Product")
-

@@ -13,7 +13,7 @@ npm install
 Start the backend from `../backend`:
 
 ```bash
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
 ```
 
 Start the mobile app:
@@ -46,3 +46,8 @@ http://192.168.1.25:8000/products
 
 The phone and computer must be on the same network.
 
+## Square Checkout
+
+The mobile checkout flow calls the backend `POST /checkout/create` endpoint. The backend creates a local pending order and returns a Square-hosted sandbox checkout URL.
+
+The app opens that URL with the platform browser and shows a pending payment screen. Until Square webhooks are implemented, the cart is kept after redirect instead of being cleared automatically.

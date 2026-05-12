@@ -28,6 +28,17 @@ Update `DATABASE_URL` in `.env` with your MySQL username and password:
 DATABASE_URL=mysql+pymysql://username:password@localhost:3306/flamingo_bean
 ```
 
+For Square sandbox checkout, also set:
+
+```text
+SQUARE_ACCESS_TOKEN=your_square_sandbox_access_token_here
+SQUARE_LOCATION_ID=your_square_sandbox_location_id_here
+SQUARE_ENVIRONMENT=sandbox
+MOBILE_APP_RETURN_URL=flamingobean://checkout/complete
+```
+
+Use Sandbox credentials only. Square secrets belong in the backend `.env` file and must not be placed in the mobile app.
+
 Run the API locally:
 
 ```bash
@@ -55,6 +66,12 @@ POST /orders
 GET /orders/{order_id}
 ```
 
+Checkout:
+
+```bash
+POST /checkout/create
+```
+
 Admin orders:
 
 ```bash
@@ -72,4 +89,12 @@ PUT /admin/products/{product_id}
 PATCH /admin/products/{product_id}/active
 ```
 
-Square checkout and authentication are intentionally not included yet.
+Webhooks:
+
+```bash
+POST /webhooks/square
+```
+
+The Square webhook route is a placeholder. It does not verify signatures or mark orders as paid yet.
+
+Production Square checkout, webhook payment confirmation, and authentication are intentionally not included yet.

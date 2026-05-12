@@ -108,13 +108,16 @@ function AdminOrderCard({ order, onPress }: AdminOrderCardProps) {
           <Text style={styles.orderId}>{order.order_id}</Text>
           <Text style={styles.customerName}>{order.customer_name}</Text>
         </View>
-        <View style={styles.statusBadge}>
+        <View style={[styles.statusBadge, getPaymentBadgeStyle(order.payment_status)]}>
           <Text style={styles.statusText}>{formatLabel(order.status)}</Text>
         </View>
       </View>
 
       <View style={styles.orderMetaRow}>
         <Text style={styles.metaText}>{formatLabel(order.fulfillment_type)}</Text>
+        <Text style={[styles.paymentText, getPaymentTextStyle(order.payment_status)]}>
+          Payment: {formatLabel(order.payment_status)}
+        </Text>
         <Text style={styles.metaText}>{formatDate(order.created_at)}</Text>
       </View>
 
@@ -135,6 +138,30 @@ function formatLabel(value: string) {
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function getPaymentBadgeStyle(paymentStatus: string) {
+  if (paymentStatus === "pending_payment") {
+    return styles.pendingBadge;
+  }
+
+  if (paymentStatus === "paid") {
+    return styles.paidBadge;
+  }
+
+  return styles.problemBadge;
+}
+
+function getPaymentTextStyle(paymentStatus: string) {
+  if (paymentStatus === "pending_payment") {
+    return styles.pendingPaymentText;
+  }
+
+  if (paymentStatus === "paid") {
+    return styles.paidPaymentText;
+  }
+
+  return styles.problemPaymentText;
 }
 
 const styles = StyleSheet.create({
@@ -274,6 +301,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
+  pendingBadge: {
+    backgroundColor: "#fff7f5",
+    borderColor: "#f0b8ad",
+  },
+  paidBadge: {
+    backgroundColor: "#e7f4ef",
+    borderColor: "#9fcfbd",
+  },
+  problemBadge: {
+    backgroundColor: "#f7ecec",
+    borderColor: "#e6a8a8",
+  },
   statusText: {
     color: "#0f766e",
     fontSize: 13,
@@ -289,6 +328,19 @@ const styles = StyleSheet.create({
     color: "#52635d",
     fontSize: 14,
     fontWeight: "700",
+  },
+  paymentText: {
+    fontSize: 14,
+    fontWeight: "900",
+  },
+  pendingPaymentText: {
+    color: "#d45d4c",
+  },
+  paidPaymentText: {
+    color: "#0f766e",
+  },
+  problemPaymentText: {
+    color: "#9f3528",
   },
   totalRow: {
     alignItems: "center",

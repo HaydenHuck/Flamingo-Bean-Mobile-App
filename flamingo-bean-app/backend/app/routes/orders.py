@@ -27,6 +27,7 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)) -> OrderConf
     db_order = Order(
         order_number=order_number,
         status="received",
+        payment_status="paid",
         customer_name=order.customer_name,
         customer_email=order.customer_email,
         fulfillment_type=order.fulfillment_type,
@@ -79,6 +80,7 @@ def to_order_confirmation(order: Order) -> OrderConfirmation:
     return OrderConfirmation(
         order_id=order.order_number,
         status=order.status,
+        payment_status=order.payment_status,
         customer_name=order.customer_name,
         customer_email=order.customer_email,
         fulfillment_type=order.fulfillment_type,

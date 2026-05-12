@@ -14,7 +14,17 @@ from app.schemas.product import ProductActiveUpdate, ProductCreate, ProductRespo
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-ALLOWED_ORDER_STATUSES = {"received", "preparing", "ready", "completed", "canceled"}
+ALLOWED_ORDER_STATUSES = {
+    "received",
+    "pending_payment",
+    "paid",
+    "payment_failed",
+    "preparing",
+    "ready",
+    "completed",
+    "canceled",
+}
+PAYMENT_STATUSES = {"pending_payment", "paid", "payment_failed", "canceled"}
 
 
 @router.get("/products", response_model=list[ProductResponse])
@@ -110,6 +120,8 @@ def update_admin_order_status(
     order = get_order_by_number(db, order_id)
 
     setattr(order, "status", status_update.status)
+    if status_update.status in PAYMENT_STATUSES:
+        setattr(order, "payment_status", status_update.status)
 
     db.commit()
     db.refresh(order)
@@ -133,6 +145,7 @@ def to_admin_order_summary(order: Order):
         customer_email=str(order.customer_email),
         fulfillment_type=str(order.fulfillment_type),
         status=str(order.status),
+        payment_status=str(order.payment_status),
         subtotal=float(str(order.subtotal)),
         tax=float(str(order.tax)),
         total=float(str(order.total)),
