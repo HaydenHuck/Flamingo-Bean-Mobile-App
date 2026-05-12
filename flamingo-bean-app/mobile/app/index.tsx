@@ -5,6 +5,8 @@ import { CartHeaderButton } from "../components/CartHeaderButton";
 import { CartProvider } from "../contexts/CartContext";
 import { AdminOrderDetailScreen } from "../screens/AdminOrderDetailScreen";
 import { AdminOrdersScreen } from "../screens/AdminOrdersScreen";
+import { AdminProductFormScreen } from "../screens/AdminProductFormScreen";
+import { AdminProductsScreen } from "../screens/AdminProductsScreen";
 import { CartScreen } from "../screens/CartScreen";
 import { OrderConfirmationScreen } from "../screens/OrderConfirmationScreen";
 import { ProductDetailScreen } from "../screens/ProductDetailScreen";
@@ -66,6 +68,22 @@ export default function AppRoot() {
             options={({ route }) => ({
               headerRight: undefined,
               title: route.params.orderId,
+            })}
+          />
+          <Stack.Screen
+            name="AdminProducts"
+            component={AdminProductsScreen}
+            options={{
+              headerRight: undefined,
+              title: "Admin Products",
+            }}
+          />
+          <Stack.Screen
+            name="AdminProductForm"
+            component={AdminProductFormScreen}
+            options={({ route }) => ({
+              headerRight: undefined,
+              title: route.params?.product ? "Edit Product" : "Add Product",
             })}
           />
         </Stack.Navigator>

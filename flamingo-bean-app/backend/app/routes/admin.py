@@ -3,16 +3,85 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.order import Order
+from app.models.product import Product
 from app.schemas.order import (
     AdminOrderDetail,
     AdminOrderItem,
     AdminOrderSummary,
     OrderStatusUpdate,
 )
+from app.schemas.product import ProductActiveUpdate, ProductCreate, ProductResponse, ProductUpdate
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 ALLOWED_ORDER_STATUSES = {"received", "preparing", "ready", "completed", "canceled"}
+
+
+@router.get("/products", response_model=list[ProductResponse])
+def get_admin_products(db: Session = Depends(get_db)) -> list[ProductResponse]:
+    products = db.query(Product).order_by(Product.category, Product.name).all()
+
+    return [to_product_response(product) for product in products]
+
+
+@router.post("/products", response_model=ProductResponse, status_code=201)
+def create_admin_product(product: ProductCreate, db: Session = Depends(get_db)) -> ProductResponse:
+    db_product = Product(
+        name=product.name,
+        description=product.description,
+        category=product.category,
+        price=product.price,
+        image_url=product.image_url,
+        roast_level=product.roast_level,
+        origin=product.origin,
+        size=product.size,
+        active=product.active,
+    )
+
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+
+    return to_product_response(db_product)
+
+
+@router.put("/products/{product_id}", response_model=ProductResponse)
+def update_admin_product(
+    product_id: int,
+    product: ProductUpdate,
+    db: Session = Depends(get_db),
+) -> ProductResponse:
+    db_product = get_product_by_id(db, product_id)
+
+    db_product.name = product.name
+    db_product.description = product.description
+    db_product.category = product.category
+    db_product.price = product.price
+    db_product.image_url = product.image_url
+    db_product.roast_level = product.roast_level
+    db_product.origin = product.origin
+    db_product.size = product.size
+    db_product.active = product.active
+
+    db.commit()
+    db.refresh(db_product)
+
+    return to_product_response(db_product)
+
+
+@router.patch("/products/{product_id}/active", response_model=ProductResponse)
+def update_admin_product_active(
+    product_id: int,
+    active_update: ProductActiveUpdate,
+    db: Session = Depends(get_db),
+) -> ProductResponse:
+    db_product = get_product_by_id(db, product_id)
+    db_product.active = active_update.active
+
+    db.commit()
+    db.refresh(db_product)
+
+    return to_product_response(db_product)
 
 
 @router.get("/orders", response_model=list[AdminOrderSummary])
@@ -87,5 +156,29 @@ def to_admin_order_detail(order: Order) -> AdminOrderDetail:
             )
             for item in order.items
         ],
+    )
+
+
+def get_product_by_id(db: Session, product_id: int) -> Product:
+    product = db.query(Product).filter(Product.id == product_id).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found.")
+
+    return product
+
+
+def to_product_response(product: Product) -> ProductResponse:
+    return ProductResponse(
+        id=product.id,
+        name=product.name,
+        description=product.description,
+        category=product.category,
+        price=float(product.price),
+        image_url=product.image_url,
+        roast_level=product.roast_level,
+        origin=product.origin,
+        size=product.size,
+        active=product.active,
     )
 

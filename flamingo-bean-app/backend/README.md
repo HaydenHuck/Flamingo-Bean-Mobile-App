@@ -63,4 +63,13 @@ GET /admin/orders/{order_id}
 PUT /admin/orders/{order_id}/status
 ```
 
+Admin products:
+
+```bash
+GET /admin/products
+POST /admin/products
+PUT /admin/products/{product_id}
+PATCH /admin/products/{product_id}/active
+```
+
 Square checkout and authentication are intentionally not included yet.
