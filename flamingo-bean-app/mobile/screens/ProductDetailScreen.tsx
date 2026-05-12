@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Image,
   Pressable,
@@ -9,6 +10,7 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useCart } from "../contexts/CartContext";
 import type { RootStackParamList } from "../types/navigation";
 
 type ProductDetailScreenProps = NativeStackScreenProps<RootStackParamList, "ProductDetail">;
@@ -20,7 +22,14 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 export function ProductDetailScreen({ navigation, route }: ProductDetailScreenProps) {
   const { product } = route.params;
+  const { addToCart } = useCart();
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const hasImage = product.image_url.trim().length > 0;
+
+  function handleAddToCart() {
+    addToCart(product);
+    setShowConfirmation(true);
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -54,7 +63,22 @@ export function ProductDetailScreen({ navigation, route }: ProductDetailScreenPr
           <DetailRow label="Status" value={product.active ? "Available" : "Unavailable"} />
         </View>
 
-        <Pressable disabled style={styles.addToCartButton}>
+        {showConfirmation ? (
+          <View style={styles.confirmation}>
+            <Text style={styles.confirmationText}>Added to cart.</Text>
+          </View>
+        ) : null}
+
+        <Pressable
+          accessibilityRole="button"
+          disabled={!product.active}
+          onPress={handleAddToCart}
+          style={({ pressed }) => [
+            styles.addToCartButton,
+            !product.active ? styles.addToCartButtonDisabled : null,
+            pressed ? styles.addToCartButtonPressed : null,
+          ]}
+        >
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </Pressable>
       </ScrollView>
@@ -195,10 +219,29 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 15,
   },
+  addToCartButtonDisabled: {
+    backgroundColor: "#9aa9a3",
+  },
+  addToCartButtonPressed: {
+    opacity: 0.85,
+  },
   addToCartText: {
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "900",
   },
+  confirmation: {
+    backgroundColor: "#e7f4ef",
+    borderColor: "#9fcfbd",
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  confirmationText: {
+    color: "#0f766e",
+    fontSize: 15,
+    fontWeight: "800",
+  },
 });
-
