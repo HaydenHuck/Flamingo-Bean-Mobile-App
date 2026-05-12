@@ -11,7 +11,10 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useAdminAuth } from "../contexts/AdminAuthContext";
+import { isAuthError } from "../services/api";
 import { fetchAdminProducts, updateAdminProductActive } from "../services/adminProducts";
+import { AdminLoginScreen } from "./AdminLoginScreen";
 import type { RootStackParamList } from "../types/navigation";
 import type { Product } from "../types/product";
 
@@ -23,18 +26,28 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 export function AdminProductsScreen({ navigation }: AdminProductsScreenProps) {
+  const { accessToken, adminUser, isAuthenticated, isLoading: isAuthLoading, logout } = useAdminAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingProductId, setUpdatingProductId] = useState<number | null>(null);
 
   async function loadProducts() {
+    if (!accessToken) {
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
-      const productList = await fetchAdminProducts();
+      const productList = await fetchAdminProducts(accessToken);
       setProducts(productList);
-    } catch {
+    } catch (loadError) {
+      if (isAuthError(loadError)) {
+        await logout();
+        return;
+      }
+
       setError("We could not load products. Please check the backend connection and try again.");
     } finally {
       setIsLoading(false);
@@ -42,15 +55,24 @@ export function AdminProductsScreen({ navigation }: AdminProductsScreenProps) {
   }
 
   async function handleActiveToggle(product: Product) {
+    if (!accessToken) {
+      return;
+    }
+
     try {
       setUpdatingProductId(product.id);
-      const updatedProduct = await updateAdminProductActive(product.id, !product.active);
+      const updatedProduct = await updateAdminProductActive(product.id, !product.active, accessToken);
       setProducts((currentProducts) =>
         currentProducts.map((currentProduct) =>
           currentProduct.id === updatedProduct.id ? updatedProduct : currentProduct,
         ),
       );
-    } catch {
+    } catch (updateError) {
+      if (isAuthError(updateError)) {
+        await logout();
+        return;
+      }
+
       setError("We could not update that product. Please try again.");
     } finally {
       setUpdatingProductId(null);
@@ -60,16 +82,30 @@ export function AdminProductsScreen({ navigation }: AdminProductsScreenProps) {
   useFocusEffect(
     useCallback(() => {
       void loadProducts();
-    }, []),
+    }, [accessToken]),
   );
+
+  if (isAuthLoading) {
+    return <AdminAuthLoadingScreen />;
+  }
+
+  if (!isAuthenticated || !accessToken) {
+    return <AdminLoginScreen />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>Staff</Text>
+          <View style={styles.adminTopRow}>
+            <Text style={styles.eyebrow}>Staff</Text>
+            <Pressable style={styles.logoutButton} onPress={() => void logout()}>
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </Pressable>
+          </View>
           <Text style={styles.heading}>Admin Products</Text>
           <Text style={styles.subheading}>Manage menu items and availability for local development.</Text>
+          {adminUser ? <Text style={styles.signedInText}>Signed in as {adminUser.email}</Text> : null}
           <Pressable style={styles.addButton} onPress={() => navigation.navigate("AdminProductForm")}>
             <Text style={styles.addButtonText}>Add Product</Text>
           </Pressable>
@@ -113,6 +149,17 @@ export function AdminProductsScreen({ navigation }: AdminProductsScreenProps) {
           </View>
         ) : null}
       </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function AdminAuthLoadingScreen() {
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.authLoadingContent}>
+        <ActivityIndicator color="#0f766e" size="large" />
+        <Text style={styles.stateText}>Checking admin session...</Text>
+      </View>
     </SafeAreaView>
   );
 }
@@ -188,6 +235,11 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
+  adminTopRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   eyebrow: {
     color: "#d45d4c",
     fontSize: 13,
@@ -207,6 +259,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 23,
     marginTop: 8,
+  },
+  signedInText: {
+    color: "#687b73",
+    fontSize: 13,
+    fontWeight: "800",
+    marginTop: 8,
+  },
+  logoutButton: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: "#d8e3dc",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  logoutButtonText: {
+    color: "#d45d4c",
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  authLoadingContent: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
   },
   addButton: {
     alignItems: "center",

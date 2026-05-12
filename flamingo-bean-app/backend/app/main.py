@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import SessionLocal, init_db
 from app.routes.admin import router as admin_router
+from app.routes.admin_auth import router as admin_auth_router
 from app.routes.checkout import router as checkout_router
 from app.routes.orders import router as orders_router
 from app.routes.products import router as products_router
@@ -46,6 +47,7 @@ app.add_middleware(
 
 app.include_router(products_router)
 app.include_router(orders_router)
+app.include_router(admin_auth_router)
 app.include_router(admin_router)
 app.include_router(checkout_router)
 app.include_router(webhooks_router)

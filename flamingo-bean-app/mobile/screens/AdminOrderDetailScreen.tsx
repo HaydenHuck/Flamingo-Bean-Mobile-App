@@ -10,7 +10,10 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useAdminAuth } from "../contexts/AdminAuthContext";
+import { isAuthError } from "../services/api";
 import { fetchAdminOrder, updateAdminOrderStatus } from "../services/adminOrders";
+import { AdminLoginScreen } from "./AdminLoginScreen";
 import type { RootStackParamList } from "../types/navigation";
 import type { AdminOrderDetail, AdminOrderItem, OrderStatus } from "../types/order";
 
@@ -34,6 +37,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 export function AdminOrderDetailScreen({ route }: AdminOrderDetailScreenProps) {
   const { orderId } = route.params;
+  const { accessToken, isAuthenticated, isLoading: isAuthLoading, logout } = useAdminAuth();
   const [order, setOrder] = useState<AdminOrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,12 +45,21 @@ export function AdminOrderDetailScreen({ route }: AdminOrderDetailScreenProps) {
   const [updatingStatus, setUpdatingStatus] = useState<OrderStatus | null>(null);
 
   async function loadOrder() {
+    if (!accessToken) {
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
-      const orderDetail = await fetchAdminOrder(orderId);
+      const orderDetail = await fetchAdminOrder(orderId, accessToken);
       setOrder(orderDetail);
-    } catch {
+    } catch (loadError) {
+      if (isAuthError(loadError)) {
+        await logout();
+        return;
+      }
+
       setError("We could not load this order. Please check the backend connection and try again.");
     } finally {
       setIsLoading(false);
@@ -54,16 +67,21 @@ export function AdminOrderDetailScreen({ route }: AdminOrderDetailScreenProps) {
   }
 
   async function handleStatusChange(status: OrderStatus) {
-    if (!order || order.status === status || updatingStatus) {
+    if (!order || !accessToken || order.status === status || updatingStatus) {
       return;
     }
 
     try {
       setUpdatingStatus(status);
       setStatusError(null);
-      const updatedOrder = await updateAdminOrderStatus(order.order_id, status);
+      const updatedOrder = await updateAdminOrderStatus(order.order_id, status, accessToken);
       setOrder(updatedOrder);
-    } catch {
+    } catch (updateError) {
+      if (isAuthError(updateError)) {
+        await logout();
+        return;
+      }
+
       setStatusError("We could not update the order status. Please try again.");
     } finally {
       setUpdatingStatus(null);
@@ -72,11 +90,26 @@ export function AdminOrderDetailScreen({ route }: AdminOrderDetailScreenProps) {
 
   useEffect(() => {
     void loadOrder();
-  }, [orderId]);
+  }, [orderId, accessToken]);
+
+  if (isAuthLoading) {
+    return <AdminAuthLoadingScreen />;
+  }
+
+  if (!isAuthenticated || !accessToken) {
+    return <AdminLoginScreen />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.adminTopRow}>
+          <Text style={styles.eyebrow}>Staff</Text>
+          <Pressable style={styles.logoutButton} onPress={() => void logout()}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </Pressable>
+        </View>
+
         {isLoading ? (
           <View style={styles.stateCard}>
             <ActivityIndicator color="#0f766e" size="large" />
@@ -152,6 +185,17 @@ export function AdminOrderDetailScreen({ route }: AdminOrderDetailScreenProps) {
   );
 }
 
+function AdminAuthLoadingScreen() {
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.authLoadingContent}>
+        <ActivityIndicator color="#0f766e" size="large" />
+        <Text style={styles.stateText}>Checking admin session...</Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 interface DetailRowProps {
   label: string;
   value: string;
@@ -200,6 +244,39 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingBottom: 34,
+  },
+  adminTopRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  eyebrow: {
+    color: "#d45d4c",
+    fontSize: 13,
+    fontWeight: "900",
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+  },
+  logoutButton: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: "#d8e3dc",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  logoutButtonText: {
+    color: "#d45d4c",
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  authLoadingContent: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
   },
   stateCard: {
     alignItems: "center",

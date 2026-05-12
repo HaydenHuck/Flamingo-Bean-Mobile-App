@@ -11,7 +11,10 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useAdminAuth } from "../contexts/AdminAuthContext";
+import { isAuthError } from "../services/api";
 import { fetchAdminOrders } from "../services/adminOrders";
+import { AdminLoginScreen } from "./AdminLoginScreen";
 import type { RootStackParamList } from "../types/navigation";
 import type { AdminOrderSummary } from "../types/order";
 
@@ -23,17 +26,27 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 export function AdminOrdersScreen({ navigation }: AdminOrdersScreenProps) {
+  const { accessToken, adminUser, isAuthenticated, isLoading: isAuthLoading, logout } = useAdminAuth();
   const [orders, setOrders] = useState<AdminOrderSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   async function loadOrders() {
+    if (!accessToken) {
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
-      const orderList = await fetchAdminOrders();
+      const orderList = await fetchAdminOrders(accessToken);
       setOrders(orderList);
-    } catch {
+    } catch (loadError) {
+      if (isAuthError(loadError)) {
+        await logout();
+        return;
+      }
+
       setError("We could not load orders. Please check the backend connection and try again.");
     } finally {
       setIsLoading(false);
@@ -43,16 +56,30 @@ export function AdminOrdersScreen({ navigation }: AdminOrdersScreenProps) {
   useFocusEffect(
     useCallback(() => {
       void loadOrders();
-    }, []),
+    }, [accessToken]),
   );
+
+  if (isAuthLoading) {
+    return <AdminAuthLoadingScreen />;
+  }
+
+  if (!isAuthenticated || !accessToken) {
+    return <AdminLoginScreen />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>Staff</Text>
+          <View style={styles.adminTopRow}>
+            <Text style={styles.eyebrow}>Staff</Text>
+            <Pressable style={styles.logoutButton} onPress={() => void logout()}>
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </Pressable>
+          </View>
           <Text style={styles.heading}>Admin Orders</Text>
           <Text style={styles.subheading}>View local development orders and manage status updates.</Text>
+          {adminUser ? <Text style={styles.signedInText}>Signed in as {adminUser.email}</Text> : null}
         </View>
 
         {isLoading ? (
@@ -91,6 +118,17 @@ export function AdminOrdersScreen({ navigation }: AdminOrdersScreenProps) {
           </View>
         ) : null}
       </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function AdminAuthLoadingScreen() {
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.authLoadingContent}>
+        <ActivityIndicator color="#0f766e" size="large" />
+        <Text style={styles.stateText}>Checking admin session...</Text>
+      </View>
     </SafeAreaView>
   );
 }
@@ -176,6 +214,11 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
+  adminTopRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   eyebrow: {
     color: "#d45d4c",
     fontSize: 13,
@@ -195,6 +238,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 23,
     marginTop: 8,
+  },
+  signedInText: {
+    color: "#687b73",
+    fontSize: 13,
+    fontWeight: "800",
+    marginTop: 8,
+  },
+  logoutButton: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: "#d8e3dc",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  logoutButtonText: {
+    color: "#d45d4c",
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  authLoadingContent: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
   },
   stateCard: {
     alignItems: "center",

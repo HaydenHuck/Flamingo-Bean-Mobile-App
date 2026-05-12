@@ -11,7 +11,10 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useAdminAuth } from "../contexts/AdminAuthContext";
+import { isAuthError } from "../services/api";
 import { createAdminProduct, updateAdminProduct } from "../services/adminProducts";
+import { AdminLoginScreen } from "./AdminLoginScreen";
 import type { RootStackParamList } from "../types/navigation";
 import type { AdminProductPayload } from "../types/product";
 
@@ -20,6 +23,7 @@ type AdminProductFormScreenProps = NativeStackScreenProps<RootStackParamList, "A
 export function AdminProductFormScreen({ navigation, route }: AdminProductFormScreenProps) {
   const product = route.params?.product;
   const isEditing = Boolean(product);
+  const { accessToken, isAuthenticated, isLoading: isAuthLoading, logout } = useAdminAuth();
 
   const [name, setName] = useState(product?.name ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
@@ -44,6 +48,10 @@ export function AdminProductFormScreen({ navigation, route }: AdminProductFormSc
     !isSaving;
 
   async function handleSave() {
+    if (!accessToken) {
+      return;
+    }
+
     if (!canSave) {
       setError("Please fill out the required fields and enter a valid price.");
       return;
@@ -66,24 +74,42 @@ export function AdminProductFormScreen({ navigation, route }: AdminProductFormSc
       setError(null);
 
       if (product) {
-        await updateAdminProduct(product.id, payload);
+        await updateAdminProduct(product.id, payload, accessToken);
       } else {
-        await createAdminProduct(payload);
+        await createAdminProduct(payload, accessToken);
       }
 
       navigation.navigate("AdminProducts");
-    } catch {
+    } catch (saveError) {
+      if (isAuthError(saveError)) {
+        await logout();
+        return;
+      }
+
       setError("We could not save this product. Please check the backend connection and try again.");
     } finally {
       setIsSaving(false);
     }
   }
 
+  if (isAuthLoading) {
+    return <AdminAuthLoadingScreen />;
+  }
+
+  if (!isAuthenticated || !accessToken) {
+    return <AdminLoginScreen />;
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>{isEditing ? "Edit Product" : "New Product"}</Text>
+          <View style={styles.adminTopRow}>
+            <Text style={styles.eyebrow}>{isEditing ? "Edit Product" : "New Product"}</Text>
+            <Pressable style={styles.logoutButton} onPress={() => void logout()}>
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </Pressable>
+          </View>
           <Text style={styles.heading}>{isEditing ? product?.name : "Add Product"}</Text>
           <Text style={styles.subheading}>Update menu details and availability for the customer product list.</Text>
         </View>
@@ -133,6 +159,17 @@ export function AdminProductFormScreen({ navigation, route }: AdminProductFormSc
   );
 }
 
+function AdminAuthLoadingScreen() {
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.authLoadingContent}>
+        <ActivityIndicator color="#0f766e" size="large" />
+        <Text style={styles.authLoadingText}>Checking admin session...</Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 interface FieldProps {
   label: string;
   value: string;
@@ -170,6 +207,11 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 18,
   },
+  adminTopRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   eyebrow: {
     color: "#d45d4c",
     fontSize: 13,
@@ -189,6 +231,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 23,
     marginTop: 8,
+  },
+  logoutButton: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: "#d8e3dc",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  logoutButtonText: {
+    color: "#d45d4c",
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  authLoadingContent: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  authLoadingText: {
+    color: "#52635d",
+    fontSize: 15,
+    marginTop: 12,
   },
   formCard: {
     backgroundColor: "#ffffff",

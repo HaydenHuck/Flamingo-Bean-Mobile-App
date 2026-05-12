@@ -35,9 +35,27 @@ SQUARE_ACCESS_TOKEN=your_square_sandbox_access_token_here
 SQUARE_LOCATION_ID=your_square_sandbox_location_id_here
 SQUARE_ENVIRONMENT=sandbox
 MOBILE_APP_RETURN_URL=flamingobean://checkout/complete
+SQUARE_WEBHOOK_SIGNATURE_KEY=your_square_webhook_signature_key_here
+SQUARE_WEBHOOK_NOTIFICATION_URL=https://your-public-tunnel.example.com/webhooks/square
 ```
 
 Use Sandbox credentials only. Square secrets belong in the backend `.env` file and must not be placed in the mobile app.
+
+For admin login, set:
+
+```text
+JWT_SECRET_KEY=replace_me_with_a_secure_secret
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=60
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=replace_me_for_local_dev_only
+```
+
+Create or update a local admin user:
+
+```bash
+python scripts/create_admin.py
+```
 
 Run the API locally:
 
@@ -75,6 +93,8 @@ POST /checkout/create
 Admin orders:
 
 ```bash
+POST /admin/auth/login
+GET /admin/auth/me
 GET /admin/orders
 GET /admin/orders/{order_id}
 PUT /admin/orders/{order_id}/status
@@ -95,6 +115,6 @@ Webhooks:
 POST /webhooks/square
 ```
 
-The Square webhook route is a placeholder. It does not verify signatures or mark orders as paid yet.
+Square webhooks validate the Square signature before updating local payment status.
 
-Production Square checkout, webhook payment confirmation, and authentication are intentionally not included yet.
+Production Square credentials, customer accounts, and password reset are intentionally not included yet.

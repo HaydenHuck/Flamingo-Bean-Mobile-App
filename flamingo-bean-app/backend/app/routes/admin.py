@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.security import get_current_admin_user
 from app.database import get_db
 from app.models.order import Order
 from app.models.product import Product
@@ -12,7 +13,7 @@ from app.schemas.order import (
 )
 from app.schemas.product import ProductActiveUpdate, ProductCreate, ProductResponse, ProductUpdate
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_current_admin_user)])
 
 ALLOWED_ORDER_STATUSES = {
     "received",

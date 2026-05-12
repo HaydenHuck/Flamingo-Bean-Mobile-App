@@ -27,7 +27,7 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    from app.models import Order, OrderItem, Product  # noqa: F401
+    from app.models import AdminUser, Order, OrderItem, Product  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
     ensure_order_checkout_columns()
