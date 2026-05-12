@@ -11,11 +11,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@react-navigation/native": "^7.2.4",
+    "@react-navigation/native-stack": "^7.15.0",
     "expo": "~55.0.23",
     "expo-status-bar": "~55.0.6",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.6",
+    "react-native-safe-area-context": "^5.7.0",
+    "react-native-screens": "^4.25.0",
     "react-native-web": "~0.21.0"
   },
   "devDependencies": {

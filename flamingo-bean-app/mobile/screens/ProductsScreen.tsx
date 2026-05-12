@@ -8,12 +8,16 @@ import {
   Text,
   View,
 } from "react-native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { ProductCard } from "../components/ProductCard";
 import { fetchProducts } from "../services/products";
+import type { RootStackParamList } from "../types/navigation";
 import type { Product } from "../types/product";
 
-export function ProductsScreen() {
+type ProductsScreenProps = NativeStackScreenProps<RootStackParamList, "Products">;
+
+export function ProductsScreen({ navigation }: ProductsScreenProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +68,11 @@ export function ProductsScreen() {
         {!isLoading && !error ? (
           <View style={styles.productList}>
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                onPress={() => navigation.navigate("ProductDetail", { product })}
+              />
             ))}
           </View>
         ) : null}

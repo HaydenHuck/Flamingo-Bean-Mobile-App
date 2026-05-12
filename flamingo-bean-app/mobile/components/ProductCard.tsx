@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Product } from "../types/product";
 
 interface ProductCardProps {
   product: Product;
+  onPress?: () => void;
 }
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -11,9 +12,14 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, onPress }: ProductCardProps) {
   return (
-    <View style={styles.card}>
+    <Pressable
+      accessibilityLabel={`View ${product.name}`}
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}
+    >
       <View style={styles.headerRow}>
         <View style={styles.titleGroup}>
           <Text style={styles.category}>{product.category}</Text>
@@ -38,7 +44,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <Text style={styles.detailValue}>{product.size}</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -55,6 +61,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
+  },
+  cardPressed: {
+    opacity: 0.82,
+    transform: [{ scale: 0.995 }],
   },
   headerRow: {
     alignItems: "flex-start",
