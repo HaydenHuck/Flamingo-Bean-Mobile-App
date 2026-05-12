@@ -62,9 +62,19 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)) -> OrderConf
 
 @router.get("/orders/{order_id}", response_model=OrderConfirmation)
 def get_order(order_id: str, db: Session = Depends(get_db)) -> OrderConfirmation:
-    order = get_order_by_number(db, order_id)
+    order = get_order_by_public_identifier(db, order_id)
 
     return to_order_confirmation(order)
+
+
+def get_order_by_public_identifier(db: Session, order_id: str) -> Order:
+    if order_id.isdigit():
+        order = db.query(Order).filter(Order.id == int(order_id)).first()
+
+        if order:
+            return order
+
+    return get_order_by_number(db, order_id)
 
 
 def get_order_by_number(db: Session, order_number: str) -> Order:
@@ -78,11 +88,12 @@ def get_order_by_number(db: Session, order_number: str) -> Order:
 
 def to_order_confirmation(order: Order) -> OrderConfirmation:
     return OrderConfirmation(
+        id=order.id,
         order_id=order.order_number,
+        order_number=order.order_number,
         status=order.status,
         payment_status=order.payment_status,
         customer_name=order.customer_name,
-        customer_email=order.customer_email,
         fulfillment_type=order.fulfillment_type,
         items=[
             OrderItemResponse(
@@ -91,6 +102,7 @@ def to_order_confirmation(order: Order) -> OrderConfirmation:
                 price=float(item.unit_price),
                 quantity=item.quantity,
                 size=item.size,
+                line_total=float(item.line_total),
             )
             for item in order.items
         ],
@@ -98,6 +110,7 @@ def to_order_confirmation(order: Order) -> OrderConfirmation:
         tax=float(order.tax),
         total=float(order.total),
         created_at=order.created_at.isoformat(),
+        updated_at=order.updated_at.isoformat(),
     )
 
 

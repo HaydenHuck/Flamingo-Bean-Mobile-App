@@ -1,15 +1,32 @@
-import { Linking, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Linking, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { fetchOrder } from "../services/orders";
 import type { RootStackParamList } from "../types/navigation";
 
 type PaymentPendingScreenProps = NativeStackScreenProps<RootStackParamList, "PaymentPending">;
 
 export function PaymentPendingScreen({ navigation, route }: PaymentPendingScreenProps) {
   const { checkout } = route.params;
+  const [isLoadingOrder, setIsLoadingOrder] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function openCheckout() {
     await Linking.openURL(checkout.checkout_url);
+  }
+
+  async function viewOrderStatus() {
+    try {
+      setIsLoadingOrder(true);
+      setError(null);
+      const order = await fetchOrder(checkout.local_order_number);
+      navigation.navigate("OrderConfirmation", { order });
+    } catch {
+      setError("We could not load your order yet. Please try again in a moment.");
+    } finally {
+      setIsLoadingOrder(false);
+    }
   }
 
   return (
@@ -19,8 +36,7 @@ export function PaymentPendingScreen({ navigation, route }: PaymentPendingScreen
           <Text style={styles.eyebrow}>Secure Checkout</Text>
           <Text style={styles.heading}>Waiting for payment confirmation</Text>
           <Text style={styles.message}>
-            Your order is pending while Square processes payment. The cart is being kept until payment confirmation is
-            wired in.
+            Your order is pending while Square processes payment. After payment, check the latest order status here.
           </Text>
 
           <View style={styles.detailRows}>
@@ -32,6 +48,24 @@ export function PaymentPendingScreen({ navigation, route }: PaymentPendingScreen
         <Pressable style={styles.primaryButton} onPress={openCheckout}>
           <Text style={styles.primaryButtonText}>Open Square Checkout</Text>
         </Pressable>
+
+        <Pressable
+          disabled={isLoadingOrder}
+          style={[styles.secondaryButton, isLoadingOrder ? styles.secondaryButtonDisabled : null]}
+          onPress={viewOrderStatus}
+        >
+          {isLoadingOrder ? (
+            <ActivityIndicator color="#0f766e" />
+          ) : (
+            <Text style={styles.secondaryButtonText}>View Order Status</Text>
+          )}
+        </Pressable>
+
+        {error ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : null}
 
         <Pressable style={styles.secondaryButton} onPress={() => navigation.navigate("Cart")}>
           <Text style={styles.secondaryButtonText}>Back to Cart</Text>
@@ -142,12 +176,30 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     marginTop: 12,
+    minHeight: 48,
     paddingVertical: 14,
+  },
+  secondaryButtonDisabled: {
+    opacity: 0.72,
   },
   secondaryButtonText: {
     color: "#0f766e",
     fontSize: 15,
     fontWeight: "900",
+  },
+  errorCard: {
+    backgroundColor: "#fff7f5",
+    borderColor: "#f0b8ad",
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 12,
+    padding: 13,
+  },
+  errorText: {
+    color: "#9f3528",
+    fontSize: 14,
+    fontWeight: "800",
+    lineHeight: 20,
   },
 });
 

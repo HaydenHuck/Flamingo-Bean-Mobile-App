@@ -22,20 +22,23 @@ class OrderItemResponse(BaseModel):
     price: float
     quantity: int
     size: str
+    line_total: float
 
 
 class OrderConfirmation(BaseModel):
+    id: int
     order_id: str
+    order_number: str
     status: str
     payment_status: str
     customer_name: str
-    customer_email: str
     fulfillment_type: str
     items: list[OrderItemResponse]
     subtotal: float
     tax: float
     total: float
     created_at: str
+    updated_at: str
 
 
 class AdminOrderSummary(BaseModel):

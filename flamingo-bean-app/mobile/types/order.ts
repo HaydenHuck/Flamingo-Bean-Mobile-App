@@ -6,25 +6,15 @@ export interface OrderItemRequest {
   size: string;
 }
 
+export interface OrderItemResponse extends OrderItemRequest {
+  line_total: number;
+}
+
 export interface CreateOrderRequest {
   customer_name: string;
   customer_email: string;
   fulfillment_type: string;
   items: OrderItemRequest[];
-}
-
-export interface OrderConfirmation {
-  order_id: string;
-  status: string;
-  payment_status: string;
-  customer_name: string;
-  customer_email: string;
-  fulfillment_type: string;
-  items: OrderItemRequest[];
-  subtotal: number;
-  tax: number;
-  total: number;
-  created_at: string;
 }
 
 export type OrderStatus =
@@ -37,6 +27,22 @@ export type OrderStatus =
   | "completed"
   | "canceled";
 export type PaymentStatus = "pending_payment" | "paid" | "payment_failed" | "canceled";
+
+export interface OrderConfirmation {
+  id: number;
+  order_id: string;
+  order_number: string;
+  status: OrderStatus;
+  payment_status: PaymentStatus;
+  customer_name: string;
+  fulfillment_type: string;
+  items: OrderItemResponse[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface CheckoutSession {
   local_order_id: number;

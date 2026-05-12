@@ -32,6 +32,16 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderConfirm
   return response.json() as Promise<OrderConfirmation>;
 }
 
+export async function fetchOrder(orderId: string): Promise<OrderConfirmation> {
+  const response = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+
+  if (!response.ok) {
+    throw new Error("Unable to load order status.");
+  }
+
+  return response.json() as Promise<OrderConfirmation>;
+}
+
 function toOrderItemRequest(item: CartItem): OrderItemRequest {
   return {
     product_id: item.productId,
@@ -41,4 +51,3 @@ function toOrderItemRequest(item: CartItem): OrderItemRequest {
     size: item.size,
   };
 }
-
