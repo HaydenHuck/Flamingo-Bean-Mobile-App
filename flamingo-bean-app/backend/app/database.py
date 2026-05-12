@@ -43,6 +43,7 @@ def ensure_order_checkout_columns() -> None:
     column_definitions = {
         "payment_status": "VARCHAR(40) NOT NULL DEFAULT 'paid'",
         "square_payment_link_id": "VARCHAR(120) NULL",
+        "square_payment_id": "VARCHAR(120) NULL",
         "square_order_id": "VARCHAR(120) NULL",
         "square_checkout_url": "VARCHAR(500) NULL",
     }

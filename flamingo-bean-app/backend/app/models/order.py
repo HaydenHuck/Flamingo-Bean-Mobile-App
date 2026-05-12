@@ -15,6 +15,7 @@ class Order(Base):
     fulfillment_type = Column(String(80), nullable=False)
     payment_status = Column(String(40), nullable=False, default="paid")
     square_payment_link_id = Column(String(120), nullable=True)
+    square_payment_id = Column(String(120), nullable=True)
     square_order_id = Column(String(120), nullable=True)
     square_checkout_url = Column(String(500), nullable=True)
     subtotal = Column(Numeric(10, 2), nullable=False)

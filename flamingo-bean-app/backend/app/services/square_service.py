@@ -46,6 +46,7 @@ def create_payment_link(
         "description": f"Flamingo Bean order {order_number}",
         "order": {
             "location_id": location_id,
+            "reference_id": order_number,
             "line_items": [to_square_line_item(item) for item in items],
             "taxes": [
                 {
