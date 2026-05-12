@@ -46,6 +46,9 @@ export function ProductsScreen({ navigation }: ProductsScreenProps) {
           <Text style={styles.brand}>Flamingo Bean</Text>
           <Text style={styles.heading}>Coffee Menu</Text>
           <Text style={styles.subheading}>Fresh-roasted coffee for pickup and mobile ordering.</Text>
+          <Pressable style={styles.adminButton} onPress={() => navigation.navigate("AdminOrders")}>
+            <Text style={styles.adminButtonText}>Admin Orders</Text>
+          </Pressable>
         </View>
 
         {isLoading ? (
@@ -113,6 +116,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 23,
     marginTop: 8,
+  },
+  adminButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#ffffff",
+    borderColor: "#9fcfbd",
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  adminButtonText: {
+    color: "#0f766e",
+    fontSize: 14,
+    fontWeight: "900",
   },
   stateContainer: {
     alignItems: "center",

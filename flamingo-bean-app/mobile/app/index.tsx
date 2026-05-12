@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { CartHeaderButton } from "../components/CartHeaderButton";
 import { CartProvider } from "../contexts/CartContext";
+import { AdminOrderDetailScreen } from "../screens/AdminOrderDetailScreen";
+import { AdminOrdersScreen } from "../screens/AdminOrdersScreen";
 import { CartScreen } from "../screens/CartScreen";
 import { OrderConfirmationScreen } from "../screens/OrderConfirmationScreen";
 import { ProductDetailScreen } from "../screens/ProductDetailScreen";
@@ -49,6 +51,22 @@ export default function AppRoot() {
               headerRight: undefined,
               title: "Order Confirmed",
             }}
+          />
+          <Stack.Screen
+            name="AdminOrders"
+            component={AdminOrdersScreen}
+            options={{
+              headerRight: undefined,
+              title: "Admin Orders",
+            }}
+          />
+          <Stack.Screen
+            name="AdminOrderDetail"
+            component={AdminOrderDetailScreen}
+            options={({ route }) => ({
+              headerRight: undefined,
+              title: route.params.orderId,
+            })}
           />
         </Stack.Navigator>
       </NavigationContainer>
