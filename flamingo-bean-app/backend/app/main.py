@@ -1,10 +1,28 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.database import SessionLocal, init_db
 from app.routes.orders import router as orders_router
 from app.routes.products import router as products_router
+from app.services.seed import seed_products
 
-app = FastAPI(title="Flamingo Bean API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+
+    db = SessionLocal()
+    try:
+        seed_products(db)
+    finally:
+        db.close()
+
+    yield
+
+
+app = FastAPI(title="Flamingo Bean API", lifespan=lifespan)
 
 allowed_origins = [
     "http://localhost:8081",

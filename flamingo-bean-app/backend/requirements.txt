@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 SQLAlchemy
-psycopg2-binary
+pymysql
 python-dotenv
 pydantic
-

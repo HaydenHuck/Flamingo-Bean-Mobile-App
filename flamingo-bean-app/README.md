@@ -1,6 +1,6 @@
 # Flamingo Bean App
 
-Flamingo Bean is a production-oriented mobile ordering system for a real coffee business. The goal is to support customer ordering from a React Native mobile app, backed by a Python API and a PostgreSQL database.
+Flamingo Bean is a production-oriented mobile ordering system for a real coffee business. The goal is to support customer ordering from a React Native mobile app, backed by a Python API and a MySQL database.
 
 ## Planned Architecture
 
@@ -10,11 +10,10 @@ Flamingo Bean is a production-oriented mobile ordering system for a real coffee 
 - `backend/app/routes/`: HTTP route modules.
 - `backend/app/schemas/`: Pydantic request and response schemas.
 - `backend/app/services/`: Business logic and integration code.
-- PostgreSQL: Primary database for menu items, customers, orders, and operational data.
+- MySQL: Primary database for menu items, orders, and order item snapshots.
 - Square API: Planned future payment integration. No Square functionality is included yet.
 - Admin dashboard: Planned for a later phase and not included in this initial scaffold.
 
 ## Current Status
 
-This repository currently contains the initial monorepo structure and a basic backend health check at `GET /health`.
-
+This repository currently contains the mobile ordering shell, product browsing, local cart flow, mock checkout flow, and a FastAPI backend with MySQL-backed products and orders.
