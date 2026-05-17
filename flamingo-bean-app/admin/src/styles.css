@@ -399,6 +399,7 @@ tbody tr:hover {
 
 .status-badge.paid,
 .status-badge.ready,
+.status-badge.pickup,
 .status-badge.active {
   background: #e5f2ec;
   border-color: #9fcfbd;
@@ -406,6 +407,7 @@ tbody tr:hover {
 }
 
 .status-badge.pending_payment,
+.status-badge.shipping,
 .status-badge.preparing {
   background: #fff3df;
   color: #b9783f;
@@ -434,9 +436,10 @@ tbody tr:hover {
 }
 
 .detail-row {
-  align-items: center;
+  align-items: flex-start;
   border-top: 1px solid #ead9c4;
   display: flex;
+  gap: 14px;
   justify-content: space-between;
   padding: 12px 0;
 }
@@ -449,6 +452,11 @@ tbody tr:hover {
 .detail-row.strong strong {
   color: #4b2e24;
   font-size: 22px;
+}
+
+.detail-row strong {
+  text-align: right;
+  white-space: pre-line;
 }
 
 .status-actions,

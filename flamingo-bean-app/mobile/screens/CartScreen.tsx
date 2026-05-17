@@ -24,6 +24,8 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 const ESTIMATED_TAX_RATE = 0.0825;
+const FLAT_SHIPPING_FEE = 6.99;
+type FulfillmentType = "pickup" | "shipping";
 
 export function CartScreen({ navigation }: CartScreenProps) {
   const {
@@ -36,7 +38,15 @@ export function CartScreen({ navigation }: CartScreenProps) {
   } = useCart();
   const [customerName, setCustomerName] = useState("Flamingo Bean Guest");
   const [customerEmail, setCustomerEmail] = useState("guest@flamingobean.local");
-  const [fulfillmentType, setFulfillmentType] = useState("pickup");
+  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("pickup");
+  const [pickupTime, setPickupTime] = useState("");
+  const [shippingName, setShippingName] = useState("");
+  const [shippingAddressLine1, setShippingAddressLine1] = useState("");
+  const [shippingAddressLine2, setShippingAddressLine2] = useState("");
+  const [shippingCity, setShippingCity] = useState("");
+  const [shippingState, setShippingState] = useState("");
+  const [shippingZip, setShippingZip] = useState("");
+  const [shippingCountry, setShippingCountry] = useState("USA");
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
@@ -44,11 +54,19 @@ export function CartScreen({ navigation }: CartScreenProps) {
   const isEmpty = items.length === 0;
   const subtotal = getCartSubtotal();
   const estimatedTax = subtotal * ESTIMATED_TAX_RATE;
-  const estimatedTotal = subtotal + estimatedTax;
+  const shippingFee = fulfillmentType === "shipping" ? FLAT_SHIPPING_FEE : 0;
+  const estimatedTotal = subtotal + estimatedTax + shippingFee;
   const canCheckout = !isEmpty && !isCheckingOut && customerName.trim().length > 0 && customerEmail.trim().length > 0;
 
   async function handleCheckout() {
     if (!canCheckout) {
+      return;
+    }
+
+    const validationMessage = getFulfillmentValidationMessage();
+    if (validationMessage) {
+      setCheckoutError(validationMessage);
+      setCheckoutMessage(null);
       return;
     }
 
@@ -60,6 +78,14 @@ export function CartScreen({ navigation }: CartScreenProps) {
         customerEmail: customerEmail.trim(),
         customerName: customerName.trim(),
         fulfillmentType,
+        pickupTime: pickupTime.trim(),
+        shippingAddressLine1: shippingAddressLine1.trim(),
+        shippingAddressLine2: shippingAddressLine2.trim(),
+        shippingCity: shippingCity.trim(),
+        shippingCountry: shippingCountry.trim(),
+        shippingName: shippingName.trim(),
+        shippingState: shippingState.trim(),
+        shippingZip: shippingZip.trim(),
         items,
       });
 
@@ -72,6 +98,27 @@ export function CartScreen({ navigation }: CartScreenProps) {
     } finally {
       setIsCheckingOut(false);
     }
+  }
+
+  function getFulfillmentValidationMessage() {
+    if (fulfillmentType === "pickup") {
+      return null;
+    }
+
+    const requiredShippingValues = [
+      shippingName,
+      shippingAddressLine1,
+      shippingCity,
+      shippingState,
+      shippingZip,
+      shippingCountry,
+    ];
+
+    if (requiredShippingValues.some((value) => value.trim().length === 0)) {
+      return "Add the shipping name, address, city, state, ZIP, and country before checkout.";
+    }
+
+    return null;
   }
 
   return (
@@ -112,6 +159,7 @@ export function CartScreen({ navigation }: CartScreenProps) {
             <View style={styles.summaryCard}>
               <SummaryRow label="Subtotal" value={currencyFormatter.format(subtotal)} />
               <SummaryRow label="Estimated tax" value={currencyFormatter.format(estimatedTax)} />
+              <SummaryRow label="Shipping" value={currencyFormatter.format(shippingFee)} />
               <SummaryRow label="Estimated total" value={currencyFormatter.format(estimatedTotal)} strong />
               <Text style={styles.summaryNote}>Final total is confirmed by the secure Square checkout.</Text>
             </View>
@@ -149,10 +197,103 @@ export function CartScreen({ navigation }: CartScreenProps) {
                       fulfillmentType === "pickup" ? styles.fulfillmentTextSelected : null,
                     ]}
                   >
-                    Pickup
+                    Pickup in store
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setFulfillmentType("shipping")}
+                  style={[
+                    styles.fulfillmentOption,
+                    fulfillmentType === "shipping" ? styles.fulfillmentOptionSelected : null,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.fulfillmentText,
+                      fulfillmentType === "shipping" ? styles.fulfillmentTextSelected : null,
+                    ]}
+                  >
+                    Ship to me
                   </Text>
                 </Pressable>
               </View>
+
+              {fulfillmentType === "pickup" ? (
+                <>
+                  <Text style={styles.fieldHelp}>Optional pickup time or note</Text>
+                  <TextInput
+                    onChangeText={setPickupTime}
+                    placeholder="Example: Today after 3 PM"
+                    placeholderTextColor="#8b9b95"
+                    style={styles.input}
+                    value={pickupTime}
+                  />
+                </>
+              ) : (
+                <View style={styles.shippingFields}>
+                  <Text style={styles.shippingNote}>Flat shipping: {currencyFormatter.format(FLAT_SHIPPING_FEE)}</Text>
+                  <TextInput
+                    autoCapitalize="words"
+                    onChangeText={setShippingName}
+                    placeholder="Shipping name"
+                    placeholderTextColor="#8b9b95"
+                    style={styles.input}
+                    value={shippingName}
+                  />
+                  <TextInput
+                    autoCapitalize="words"
+                    onChangeText={setShippingAddressLine1}
+                    placeholder="Address line 1"
+                    placeholderTextColor="#8b9b95"
+                    style={styles.input}
+                    value={shippingAddressLine1}
+                  />
+                  <TextInput
+                    autoCapitalize="words"
+                    onChangeText={setShippingAddressLine2}
+                    placeholder="Address line 2 (optional)"
+                    placeholderTextColor="#8b9b95"
+                    style={styles.input}
+                    value={shippingAddressLine2}
+                  />
+                  <View style={styles.formRow}>
+                    <TextInput
+                      autoCapitalize="words"
+                      onChangeText={setShippingCity}
+                      placeholder="City"
+                      placeholderTextColor="#8b9b95"
+                      style={[styles.input, styles.formRowInput]}
+                      value={shippingCity}
+                    />
+                    <TextInput
+                      autoCapitalize="characters"
+                      onChangeText={setShippingState}
+                      placeholder="State"
+                      placeholderTextColor="#8b9b95"
+                      style={[styles.input, styles.formRowInput]}
+                      value={shippingState}
+                    />
+                  </View>
+                  <View style={styles.formRow}>
+                    <TextInput
+                      keyboardType="number-pad"
+                      onChangeText={setShippingZip}
+                      placeholder="ZIP"
+                      placeholderTextColor="#8b9b95"
+                      style={[styles.input, styles.formRowInput]}
+                      value={shippingZip}
+                    />
+                    <TextInput
+                      autoCapitalize="characters"
+                      onChangeText={setShippingCountry}
+                      placeholder="Country"
+                      placeholderTextColor="#8b9b95"
+                      style={[styles.input, styles.formRowInput]}
+                      value={shippingCountry}
+                    />
+                  </View>
+                </View>
+              )}
             </View>
 
             {checkoutError ? (
@@ -503,6 +644,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     marginTop: 2,
+    marginBottom: 12,
   },
   fulfillmentOption: {
     alignItems: "center",
@@ -523,6 +665,34 @@ const styles = StyleSheet.create({
   },
   fulfillmentTextSelected: {
     color: theme.colors.coffee,
+  },
+  fieldHelp: {
+    color: theme.colors.textMuted,
+    fontSize: 13,
+    fontWeight: "800",
+    marginBottom: 7,
+  },
+  shippingFields: {
+    marginTop: 2,
+  },
+  shippingNote: {
+    backgroundColor: theme.colors.cream,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    color: theme.colors.coffee,
+    fontSize: 14,
+    fontWeight: "900",
+    marginBottom: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 10,
+  },
+  formRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  formRowInput: {
+    flex: 1,
   },
   errorCard: {
     backgroundColor: theme.colors.dangerSoft,

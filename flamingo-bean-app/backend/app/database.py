@@ -46,6 +46,15 @@ def ensure_order_checkout_columns() -> None:
         "square_payment_id": "VARCHAR(120) NULL",
         "square_order_id": "VARCHAR(120) NULL",
         "square_checkout_url": "VARCHAR(500) NULL",
+        "pickup_time": "VARCHAR(120) NULL",
+        "shipping_name": "VARCHAR(255) NULL",
+        "shipping_address_line1": "VARCHAR(255) NULL",
+        "shipping_address_line2": "VARCHAR(255) NULL",
+        "shipping_city": "VARCHAR(120) NULL",
+        "shipping_state": "VARCHAR(80) NULL",
+        "shipping_zip": "VARCHAR(40) NULL",
+        "shipping_country": "VARCHAR(80) NULL",
+        "shipping_fee": "NUMERIC(10, 2) NOT NULL DEFAULT 0",
     }
 
     with engine.begin() as connection:

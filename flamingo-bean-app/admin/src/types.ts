@@ -30,10 +30,19 @@ export interface AdminOrderSummary {
   customer_name: string;
   customer_email: string;
   fulfillment_type: string;
+  pickup_time: string | null;
+  shipping_name: string | null;
+  shipping_address_line1: string | null;
+  shipping_address_line2: string | null;
+  shipping_city: string | null;
+  shipping_state: string | null;
+  shipping_zip: string | null;
+  shipping_country: string | null;
   status: OrderStatus;
   payment_status: PaymentStatus;
   subtotal: number;
   tax: number;
+  shipping_fee: number;
   total: number;
   created_at: string;
 }
