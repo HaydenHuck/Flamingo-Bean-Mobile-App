@@ -105,6 +105,12 @@ export function OrderConfirmationScreen({ navigation, route }: OrderConfirmation
         <View style={styles.detailsCard}>
           <DetailRow label="Customer" value={order.customer_name} />
           <DetailRow label="Fulfillment" value={formatStatus(order.fulfillment_type)} />
+          {order.fulfillment_type === "pickup" && order.pickup_time ? (
+            <DetailRow label="Pickup time" value={order.pickup_time} />
+          ) : null}
+          {order.fulfillment_type === "shipping" ? (
+            <DetailRow label="Ship to" value={formatShippingAddress(order)} />
+          ) : null}
           <DetailRow label="Created" value={formatDate(order.created_at)} />
           <DetailRow label="Updated" value={formatDate(order.updated_at)} />
         </View>
@@ -119,6 +125,7 @@ export function OrderConfirmationScreen({ navigation, route }: OrderConfirmation
         <View style={styles.totalsCard}>
           <DetailRow label="Subtotal" value={currencyFormatter.format(order.subtotal)} />
           <DetailRow label="Tax" value={currencyFormatter.format(order.tax)} />
+          <DetailRow label="Shipping" value={currencyFormatter.format(order.shipping_fee)} />
           <DetailRow label="Total" value={currencyFormatter.format(order.total)} isTotal />
         </View>
 
@@ -196,7 +203,9 @@ function OrderItemRow({ item }: OrderItemRowProps) {
 
 function getCustomerMessage(order: OrderConfirmation) {
   if (order.status === "ready") {
-    return "Your order is ready for pickup.";
+    return order.fulfillment_type === "shipping"
+      ? "Your order is ready for shipment."
+      : "Your order is ready for pickup.";
   }
 
   if (order.payment_status === "pending_payment") {
@@ -215,7 +224,9 @@ function getCustomerMessage(order: OrderConfirmation) {
     return "This order has been canceled.";
   }
 
-  return "We have your Flamingo Bean order and will prepare it for pickup.";
+  return order.fulfillment_type === "shipping"
+    ? "We have your Flamingo Bean order and will prepare it for shipping."
+    : "We have your Flamingo Bean order and will prepare it for pickup.";
 }
 
 function getPaymentMessage(order: OrderConfirmation) {
@@ -260,12 +271,24 @@ function getTimelineHelp(step: OrderStatus) {
     case "preparing":
       return "Your coffee is being prepared.";
     case "ready":
-      return "Your order is ready for pickup.";
+      return "Your order is ready for pickup or shipment.";
     case "completed":
-      return "The order has been picked up.";
+      return "The order is complete.";
     default:
       return "";
   }
+}
+
+function formatShippingAddress(order: OrderConfirmation) {
+  const addressParts = [
+    order.shipping_name,
+    order.shipping_address_line1,
+    order.shipping_address_line2,
+    [order.shipping_city, order.shipping_state, order.shipping_zip].filter(Boolean).join(", "),
+    order.shipping_country,
+  ].filter(Boolean);
+
+  return addressParts.join("\n");
 }
 
 function getPaymentStatusStyle(paymentStatus: string) {

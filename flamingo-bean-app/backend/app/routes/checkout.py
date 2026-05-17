@@ -8,7 +8,15 @@ from app.database import get_db
 from app.models.order import Order, OrderItem
 from app.schemas.checkout import CheckoutCreate, CheckoutCreateResponse
 from app.services.square_service import SquareApiError, SquareConfigurationError, create_payment_link
-from app.routes.orders import money
+from app.routes.orders import (
+    PICKUP_FULFILLMENT,
+    SHIPPING_FULFILLMENT,
+    TAX_RATE,
+    clean_optional_text,
+    get_shipping_fee,
+    money,
+    validate_fulfillment_details,
+)
 
 router = APIRouter(tags=["checkout"])
 
@@ -18,6 +26,7 @@ def create_checkout(checkout: CheckoutCreate, db: Session = Depends(get_db)) -> 
     if not checkout.items:
         raise HTTPException(status_code=400, detail="Checkout must include at least one item.")
 
+    validate_fulfillment_details(checkout)
     db_order = create_pending_order(checkout, db)
 
     try:
@@ -25,6 +34,7 @@ def create_checkout(checkout: CheckoutCreate, db: Session = Depends(get_db)) -> 
             customer_email=checkout.customer_email,
             items=checkout.items,
             order_number=str(db_order.order_number),
+            shipping_fee=Decimal(str(db_order.shipping_fee)),
         )
     except SquareConfigurationError as exc:
         mark_payment_failed(db_order, db)
@@ -50,9 +60,11 @@ def create_checkout(checkout: CheckoutCreate, db: Session = Depends(get_db)) -> 
 
 def create_pending_order(checkout: CheckoutCreate, db: Session) -> Order:
     subtotal = money(sum(Decimal(str(item.price)) * item.quantity for item in checkout.items))
-    tax = money(subtotal * Decimal("0.0825"))
-    total = money(subtotal + tax)
+    tax = money(subtotal * TAX_RATE)
+    shipping_fee = get_shipping_fee(checkout.fulfillment_type)
+    total = money(subtotal + tax + shipping_fee)
     order_number = f"FB-{uuid4().hex[:8].upper()}"
+    is_shipping = checkout.fulfillment_type == SHIPPING_FULFILLMENT
 
     db_order = Order(
         order_number=order_number,
@@ -61,8 +73,19 @@ def create_pending_order(checkout: CheckoutCreate, db: Session) -> Order:
         customer_name=checkout.customer_name,
         customer_email=checkout.customer_email,
         fulfillment_type=checkout.fulfillment_type,
+        pickup_time=clean_optional_text(checkout.pickup_time)
+        if checkout.fulfillment_type == PICKUP_FULFILLMENT
+        else None,
+        shipping_name=clean_optional_text(checkout.shipping_name) if is_shipping else None,
+        shipping_address_line1=clean_optional_text(checkout.shipping_address_line1) if is_shipping else None,
+        shipping_address_line2=clean_optional_text(checkout.shipping_address_line2) if is_shipping else None,
+        shipping_city=clean_optional_text(checkout.shipping_city) if is_shipping else None,
+        shipping_state=clean_optional_text(checkout.shipping_state) if is_shipping else None,
+        shipping_zip=clean_optional_text(checkout.shipping_zip) if is_shipping else None,
+        shipping_country=clean_optional_text(checkout.shipping_country) if is_shipping else None,
         subtotal=subtotal,
         tax=tax,
+        shipping_fee=shipping_fee,
         total=total,
     )
 

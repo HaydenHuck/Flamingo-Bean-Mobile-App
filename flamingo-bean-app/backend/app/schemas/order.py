@@ -13,6 +13,14 @@ class OrderCreate(BaseModel):
     customer_name: str
     customer_email: str
     fulfillment_type: str
+    pickup_time: str | None = None
+    shipping_name: str | None = None
+    shipping_address_line1: str | None = None
+    shipping_address_line2: str | None = None
+    shipping_city: str | None = None
+    shipping_state: str | None = None
+    shipping_zip: str | None = None
+    shipping_country: str | None = None
     items: list[OrderItemCreate]
 
 
@@ -33,9 +41,18 @@ class OrderConfirmation(BaseModel):
     payment_status: str
     customer_name: str
     fulfillment_type: str
+    pickup_time: str | None = None
+    shipping_name: str | None = None
+    shipping_address_line1: str | None = None
+    shipping_address_line2: str | None = None
+    shipping_city: str | None = None
+    shipping_state: str | None = None
+    shipping_zip: str | None = None
+    shipping_country: str | None = None
     items: list[OrderItemResponse]
     subtotal: float
     tax: float
+    shipping_fee: float
     total: float
     created_at: str
     updated_at: str
@@ -46,10 +63,19 @@ class AdminOrderSummary(BaseModel):
     customer_name: str
     customer_email: str
     fulfillment_type: str
+    pickup_time: str | None = None
+    shipping_name: str | None = None
+    shipping_address_line1: str | None = None
+    shipping_address_line2: str | None = None
+    shipping_city: str | None = None
+    shipping_state: str | None = None
+    shipping_zip: str | None = None
+    shipping_country: str | None = None
     status: str
     payment_status: str
     subtotal: float
     tax: float
+    shipping_fee: float
     total: float
     created_at: str
 

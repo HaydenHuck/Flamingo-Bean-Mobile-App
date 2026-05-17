@@ -32,6 +32,7 @@ def create_payment_link(
     order_number: str,
     customer_email: str,
     items: list[OrderItemCreate],
+    shipping_fee: Decimal = Decimal("0"),
 ) -> SquarePaymentLinkResult:
     access_token = get_required_env("SQUARE_ACCESS_TOKEN")
     location_id = get_required_env("SQUARE_LOCATION_ID")
@@ -47,13 +48,16 @@ def create_payment_link(
         "order": {
             "location_id": location_id,
             "reference_id": order_number,
-            "line_items": [to_square_line_item(item) for item in items],
+            "line_items": [
+                *[to_square_line_item(item) for item in items],
+                *to_square_shipping_line_items(shipping_fee),
+            ],
             "taxes": [
                 {
                     "uid": "estimated-tax",
                     "name": "Estimated tax",
                     "percentage": "8.25",
-                    "scope": "ORDER",
+                    "scope": "LINE_ITEM",
                 }
             ],
         },
@@ -105,11 +109,28 @@ def to_square_line_item(item: OrderItemCreate) -> dict:
     return {
         "name": item.name,
         "quantity": str(item.quantity),
+        "applied_taxes": [{"tax_uid": "estimated-tax"}],
         "base_price_money": {
             "amount": to_cents(Decimal(str(item.price))),
             "currency": USD,
         },
     }
+
+
+def to_square_shipping_line_items(shipping_fee: Decimal) -> list[dict]:
+    if shipping_fee <= 0:
+        return []
+
+    return [
+        {
+            "name": "Flat shipping",
+            "quantity": "1",
+            "base_price_money": {
+                "amount": to_cents(shipping_fee),
+                "currency": USD,
+            },
+        }
+    ]
 
 
 def to_cents(amount: Decimal) -> int:

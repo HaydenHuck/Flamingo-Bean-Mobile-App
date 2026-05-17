@@ -14,6 +14,14 @@ export interface CreateOrderRequest {
   customer_name: string;
   customer_email: string;
   fulfillment_type: string;
+  pickup_time?: string | null;
+  shipping_name?: string | null;
+  shipping_address_line1?: string | null;
+  shipping_address_line2?: string | null;
+  shipping_city?: string | null;
+  shipping_state?: string | null;
+  shipping_zip?: string | null;
+  shipping_country?: string | null;
   items: OrderItemRequest[];
 }
 
@@ -36,9 +44,18 @@ export interface OrderConfirmation {
   payment_status: PaymentStatus;
   customer_name: string;
   fulfillment_type: string;
+  pickup_time: string | null;
+  shipping_name: string | null;
+  shipping_address_line1: string | null;
+  shipping_address_line2: string | null;
+  shipping_city: string | null;
+  shipping_state: string | null;
+  shipping_zip: string | null;
+  shipping_country: string | null;
   items: OrderItemResponse[];
   subtotal: number;
   tax: number;
+  shipping_fee: number;
   total: number;
   created_at: string;
   updated_at: string;

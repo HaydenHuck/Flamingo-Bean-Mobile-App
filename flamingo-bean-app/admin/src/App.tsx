@@ -322,7 +322,7 @@ function OrdersPage({ token }: { token: string }) {
 
   return (
     <section className="page-stack">
-      <PageHeader eyebrow="Orders" title="Order Queue" description="Review payments, fulfillment, and pickup status." />
+      <PageHeader eyebrow="Orders" title="Order Queue" description="Review payments, fulfillment, pickup, and shipping status." />
 
       {isLoading ? <StateCard title="Loading orders..." /> : null}
       {error ? <StateCard action={loadOrders} actionLabel="Retry" tone="error" title={error} /> : null}
@@ -356,7 +356,9 @@ function OrdersPage({ token }: { token: string }) {
                       <StatusBadge value={order.payment_status} />
                     </td>
                     <td>{currencyFormatter.format(order.total)}</td>
-                    <td>{formatLabel(order.fulfillment_type)}</td>
+                    <td>
+                      <StatusBadge value={order.fulfillment_type} />
+                    </td>
                     <td>{formatDate(order.created_at)}</td>
                   </tr>
                 ))}
@@ -430,6 +432,21 @@ function OrderDetailPage({ orderId, token }: { orderId: string; token: string })
             </section>
 
             <section className="panel">
+              <h2>Fulfillment</h2>
+              {order.fulfillment_type === "pickup" ? (
+                <>
+                  <DetailRow label="Type" value="Pickup in store" />
+                  <DetailRow label="Pickup time" value={order.pickup_time || "No pickup time requested"} />
+                </>
+              ) : (
+                <>
+                  <DetailRow label="Type" value="Shipping" />
+                  <DetailRow label="Ship to" value={formatShippingAddress(order)} />
+                </>
+              )}
+            </section>
+
+            <section className="panel">
               <h2>Status</h2>
               <DetailRow label="Order" value={formatLabel(order.status)} />
               <DetailRow label="Payment" value={formatLabel(order.payment_status)} />
@@ -469,6 +486,7 @@ function OrderDetailPage({ orderId, token }: { orderId: string; token: string })
           <section className="panel totals-panel">
             <DetailRow label="Subtotal" value={currencyFormatter.format(order.subtotal)} />
             <DetailRow label="Tax" value={currencyFormatter.format(order.tax)} />
+            <DetailRow label="Shipping" value={currencyFormatter.format(order.shipping_fee)} />
             <DetailRow label="Total" value={currencyFormatter.format(order.total)} strong />
           </section>
         </>
@@ -834,6 +852,19 @@ function FullPageState({ message, title }: { message: string; title: string }) {
       </section>
     </main>
   );
+}
+
+function formatShippingAddress(order: AdminOrderDetail) {
+  const cityLine = [order.shipping_city, order.shipping_state, order.shipping_zip].filter(Boolean).join(", ");
+  const addressParts = [
+    order.shipping_name,
+    order.shipping_address_line1,
+    order.shipping_address_line2,
+    cityLine,
+    order.shipping_country,
+  ].filter(Boolean);
+
+  return addressParts.length > 0 ? addressParts.join("\n") : "No shipping address saved";
 }
 
 function formatDate(value: string) {
