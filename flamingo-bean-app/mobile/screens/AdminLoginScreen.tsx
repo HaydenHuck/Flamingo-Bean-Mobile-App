@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { useAdminAuth } from "../contexts/AdminAuthContext";
+import { theme } from "../theme";
 
 export function AdminLoginScreen() {
   const { login } = useAdminAuth();
@@ -99,7 +100,7 @@ export function AdminLoginScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.adminBackground,
     flex: 1,
   },
   content: {

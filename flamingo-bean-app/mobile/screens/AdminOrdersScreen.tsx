@@ -15,6 +15,7 @@ import { useAdminAuth } from "../contexts/AdminAuthContext";
 import { isAuthError } from "../services/api";
 import { fetchAdminOrders } from "../services/adminOrders";
 import { AdminLoginScreen } from "./AdminLoginScreen";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 import type { AdminOrderSummary } from "../types/order";
 
@@ -204,7 +205,7 @@ function getPaymentTextStyle(paymentStatus: string) {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.adminBackground,
     flex: 1,
   },
   content: {

@@ -12,6 +12,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { ProductCard } from "../components/ProductCard";
 import { fetchProducts } from "../services/products";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 import type { Product } from "../types/product";
 
@@ -43,9 +44,17 @@ export function ProductsScreen({ navigation }: ProductsScreenProps) {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
-          <Text style={styles.brand}>Flamingo Bean</Text>
-          <Text style={styles.heading}>Coffee Menu</Text>
-          <Text style={styles.subheading}>Fresh-roasted coffee for pickup and mobile ordering.</Text>
+          <View style={styles.brandRow}>
+            <View style={styles.brandMark}>
+              <Text style={styles.brandMarkText}>FB</Text>
+            </View>
+            <View style={styles.brandCopy}>
+              <Text style={styles.brand}>Flamingo Bean</Text>
+              <Text style={styles.welcome}>Welcome back</Text>
+            </View>
+          </View>
+          <Text style={styles.heading}>Fresh coffee, ready when you are.</Text>
+          <Text style={styles.subheading}>Order small-batch favorites for pickup from the Flamingo Bean bar.</Text>
           <View style={styles.adminActions}>
             <Pressable style={styles.adminButton} onPress={() => navigation.navigate("AdminOrders")}>
               <Text style={styles.adminButtonText}>Admin Orders</Text>
@@ -58,8 +67,8 @@ export function ProductsScreen({ navigation }: ProductsScreenProps) {
 
         {isLoading ? (
           <View style={styles.stateContainer}>
-            <ActivityIndicator color="#0f766e" size="large" />
-            <Text style={styles.stateText}>Loading coffee menu...</Text>
+            <ActivityIndicator color={theme.colors.coffee} size="large" />
+            <Text style={styles.stateText}>Brewing your menu...</Text>
           </View>
         ) : null}
 
@@ -91,101 +100,135 @@ export function ProductsScreen({ navigation }: ProductsScreenProps) {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.background,
     flex: 1,
   },
   content: {
-    padding: 20,
-    paddingBottom: 32,
+    padding: theme.spacing.xl,
+    paddingBottom: 36,
   },
   hero: {
-    marginBottom: 22,
-    paddingTop: 10,
+    backgroundColor: theme.colors.surfaceWarm,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
+    borderWidth: 1,
+    marginBottom: theme.spacing.xl,
+    padding: theme.spacing.xl,
+    ...theme.shadows.soft,
+  },
+  brandRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  brandMark: {
+    alignItems: "center",
+    backgroundColor: theme.colors.flamingo,
+    borderRadius: theme.radius.md,
+    height: 44,
+    justifyContent: "center",
+    width: 44,
+  },
+  brandMarkText: {
+    color: theme.colors.surface,
+    fontSize: 15,
+    fontWeight: "900",
+  },
+  brandCopy: {
+    flex: 1,
   },
   brand: {
-    color: "#d45d4c",
-    fontSize: 15,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 6,
+    color: theme.colors.flamingoDark,
+    fontSize: 13,
+    fontWeight: "900",
+    letterSpacing: 0,
+    marginBottom: 3,
     textTransform: "uppercase",
   },
-  heading: {
-    color: "#18211f",
-    fontSize: 34,
+  welcome: {
+    color: theme.colors.textMuted,
+    fontSize: 14,
     fontWeight: "800",
+  },
+  heading: {
+    color: theme.colors.text,
+    fontSize: theme.typography.hero,
+    fontWeight: "900",
     lineHeight: 40,
   },
   subheading: {
-    color: "#52635d",
-    fontSize: 16,
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.bodyLarge,
     lineHeight: 23,
-    marginTop: 8,
+    marginTop: theme.spacing.sm,
   },
   adminActions: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginTop: 14,
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
   },
   adminButton: {
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderColor: "#9fcfbd",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
   adminButtonText: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
     fontSize: 14,
     fontWeight: "900",
   },
   stateContainer: {
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    padding: 24,
+    padding: 28,
+    ...theme.shadows.soft,
   },
   stateText: {
-    color: "#52635d",
+    color: theme.colors.textMuted,
     fontSize: 15,
-    marginTop: 12,
+    fontWeight: "800",
+    marginTop: theme.spacing.md,
   },
   errorCard: {
-    backgroundColor: "#fff7f5",
+    backgroundColor: theme.colors.dangerSoft,
     borderColor: "#f0b8ad",
-    borderRadius: 8,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    padding: 18,
+    padding: theme.spacing.lg,
   },
   errorTitle: {
-    color: "#9f3528",
+    color: theme.colors.danger,
     fontSize: 18,
-    fontWeight: "800",
-    marginBottom: 6,
+    fontWeight: "900",
+    marginBottom: theme.spacing.sm,
   },
   errorText: {
-    color: "#684a44",
+    color: theme.colors.textMuted,
     fontSize: 15,
     lineHeight: 22,
   },
   retryButton: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#0f766e",
-    borderRadius: 8,
-    marginTop: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    backgroundColor: theme.colors.coffee,
+    borderRadius: theme.radius.md,
+    marginTop: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
   },
   retryButtonText: {
-    color: "#ffffff",
+    color: theme.colors.surface,
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   productList: {
     gap: 0,

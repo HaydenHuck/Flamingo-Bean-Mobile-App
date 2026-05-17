@@ -13,6 +13,7 @@ import { OrderConfirmationScreen } from "../screens/OrderConfirmationScreen";
 import { PaymentPendingScreen } from "../screens/PaymentPendingScreen";
 import { ProductDetailScreen } from "../screens/ProductDetailScreen";
 import { ProductsScreen } from "../screens/ProductsScreen";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -24,13 +25,13 @@ export default function AppRoot() {
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={({ navigation }) => ({
-              contentStyle: { backgroundColor: "#f4f7f2" },
+              contentStyle: { backgroundColor: theme.colors.background },
               headerRight: () => <CartHeaderButton onPress={() => navigation.navigate("Cart")} />,
               headerShadowVisible: false,
-              headerStyle: { backgroundColor: "#f4f7f2" },
-              headerTintColor: "#0f766e",
+              headerStyle: { backgroundColor: theme.colors.background },
+              headerTintColor: theme.colors.sage,
               headerTitleStyle: {
-                color: "#18211f",
+                color: theme.colors.text,
                 fontWeight: "800",
               },
             })}

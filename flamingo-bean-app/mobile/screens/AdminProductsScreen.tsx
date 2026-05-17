@@ -15,6 +15,7 @@ import { useAdminAuth } from "../contexts/AdminAuthContext";
 import { isAuthError } from "../services/api";
 import { fetchAdminProducts, updateAdminProductActive } from "../services/adminProducts";
 import { AdminLoginScreen } from "./AdminLoginScreen";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 import type { Product } from "../types/product";
 
@@ -225,7 +226,7 @@ function Detail({ label, value }: DetailProps) {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.adminBackground,
     flex: 1,
   },
   content: {

@@ -15,6 +15,7 @@ import { useAdminAuth } from "../contexts/AdminAuthContext";
 import { isAuthError } from "../services/api";
 import { createAdminProduct, updateAdminProduct } from "../services/adminProducts";
 import { AdminLoginScreen } from "./AdminLoginScreen";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 import type { AdminProductPayload } from "../types/product";
 
@@ -197,7 +198,7 @@ function Field({ label, value, onChangeText, keyboardType = "default", multiline
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.adminBackground,
     flex: 1,
   },
   content: {

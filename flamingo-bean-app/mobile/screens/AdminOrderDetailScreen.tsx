@@ -14,6 +14,7 @@ import { useAdminAuth } from "../contexts/AdminAuthContext";
 import { isAuthError } from "../services/api";
 import { fetchAdminOrder, updateAdminOrderStatus } from "../services/adminOrders";
 import { AdminLoginScreen } from "./AdminLoginScreen";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 import type { AdminOrderDetail, AdminOrderItem, OrderStatus } from "../types/order";
 
@@ -238,7 +239,7 @@ function formatLabel(value: string) {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.adminBackground,
     flex: 1,
   },
   content: {
