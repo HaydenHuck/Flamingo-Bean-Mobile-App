@@ -11,6 +11,7 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { useCart } from "../contexts/CartContext";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 
 type ProductDetailScreenProps = NativeStackScreenProps<RootStackParamList, "ProductDetail">;
@@ -42,8 +43,11 @@ export function ProductDetailScreen({ navigation, route }: ProductDetailScreenPr
           <Image source={{ uri: product.image_url }} style={styles.image} resizeMode="cover" />
         ) : (
           <View style={styles.imagePlaceholder}>
+            <View style={styles.placeholderBadge}>
+              <Text style={styles.placeholderBadgeText}>FB</Text>
+            </View>
             <Text style={styles.placeholderBrand}>Flamingo Bean</Text>
-            <Text style={styles.placeholderText}>Coffee image coming soon</Text>
+            <Text style={styles.placeholderText}>Fresh roast image coming soon</Text>
           </View>
         )}
 
@@ -51,7 +55,10 @@ export function ProductDetailScreen({ navigation, route }: ProductDetailScreenPr
           <Text style={styles.category}>{product.category}</Text>
           <View style={styles.titleRow}>
             <Text style={styles.name}>{product.name}</Text>
-            <Text style={styles.price}>{currencyFormatter.format(product.price)}</Text>
+            <View style={styles.priceBox}>
+              <Text style={styles.priceLabel}>Price</Text>
+              <Text style={styles.price}>{currencyFormatter.format(product.price)}</Text>
+            </View>
           </View>
           <Text style={styles.description}>{product.description}</Text>
         </View>
@@ -102,61 +109,79 @@ function DetailRow({ label, value }: DetailRowProps) {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.background,
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: theme.spacing.xl,
     paddingBottom: 34,
   },
   backButton: {
     alignSelf: "flex-start",
-    marginBottom: 14,
-    paddingVertical: 4,
+    marginBottom: theme.spacing.lg,
+    paddingVertical: theme.spacing.xs,
   },
   backButtonText: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   image: {
     aspectRatio: 1.55,
-    backgroundColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     width: "100%",
+    ...theme.shadows.soft,
   },
   imagePlaceholder: {
     alignItems: "center",
     aspectRatio: 1.55,
-    backgroundColor: "#fff7f5",
-    borderColor: "#f0b8ad",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surfaceWarm,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
     justifyContent: "center",
+    padding: theme.spacing.xl,
     width: "100%",
+    ...theme.shadows.soft,
+  },
+  placeholderBadge: {
+    alignItems: "center",
+    backgroundColor: theme.colors.flamingo,
+    borderRadius: theme.radius.md,
+    height: 52,
+    justifyContent: "center",
+    marginBottom: theme.spacing.md,
+    width: 52,
+  },
+  placeholderBadgeText: {
+    color: theme.colors.surface,
+    fontSize: 17,
+    fontWeight: "900",
   },
   placeholderBrand: {
-    color: "#d45d4c",
+    color: theme.colors.flamingoDark,
     fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 6,
+    fontWeight: "900",
+    letterSpacing: 0,
+    marginBottom: theme.spacing.xs,
     textTransform: "uppercase",
   },
   placeholderText: {
-    color: "#52635d",
+    color: theme.colors.textMuted,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
+    textAlign: "center",
   },
   header: {
-    marginTop: 20,
+    marginTop: theme.spacing.xl,
   },
   category: {
-    color: "#d45d4c",
+    color: theme.colors.flamingoDark,
     fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.4,
-    marginBottom: 7,
+    fontWeight: "900",
+    letterSpacing: 0,
+    marginBottom: theme.spacing.sm,
     textTransform: "uppercase",
   },
   titleRow: {
@@ -166,34 +191,50 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   name: {
-    color: "#18211f",
+    color: theme.colors.text,
     flex: 1,
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: "900",
-    lineHeight: 36,
+    lineHeight: 38,
+  },
+  priceBox: {
+    backgroundColor: theme.colors.cream,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: theme.radius.card,
+    borderWidth: 1,
+    minWidth: 104,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  priceLabel: {
+    color: theme.colors.caramel,
+    fontSize: 11,
+    fontWeight: "900",
+    marginBottom: 2,
+    textTransform: "uppercase",
   },
   price: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
     fontSize: 22,
     fontWeight: "900",
-    marginTop: 4,
   },
   description: {
-    color: "#52635d",
+    color: theme.colors.textMuted,
     fontSize: 16,
     lineHeight: 24,
-    marginTop: 12,
+    marginTop: theme.spacing.md,
   },
   detailsCard: {
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    marginTop: 20,
-    paddingHorizontal: 16,
+    marginTop: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
+    ...theme.shadows.soft,
   },
   detailRow: {
-    borderBottomColor: "#d8e3dc",
+    borderBottomColor: theme.colors.border,
     borderBottomWidth: 1,
     flexDirection: "row",
     gap: 14,
@@ -201,47 +242,48 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   detailLabel: {
-    color: "#687b73",
+    color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   detailValue: {
-    color: "#25332f",
+    color: theme.colors.text,
     flex: 1,
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: "800",
     textAlign: "right",
   },
   addToCartButton: {
     alignItems: "center",
-    backgroundColor: "#0f766e",
-    borderRadius: 8,
-    marginTop: 20,
+    backgroundColor: theme.colors.coffee,
+    borderRadius: theme.radius.card,
+    marginTop: theme.spacing.xl,
     paddingVertical: 15,
+    ...theme.shadows.soft,
   },
   addToCartButtonDisabled: {
-    backgroundColor: "#9aa9a3",
+    backgroundColor: theme.colors.disabled,
   },
   addToCartButtonPressed: {
     opacity: 0.85,
   },
   addToCartText: {
-    color: "#ffffff",
+    color: theme.colors.surface,
     fontSize: 16,
     fontWeight: "900",
   },
   confirmation: {
-    backgroundColor: "#e7f4ef",
+    backgroundColor: theme.colors.sageSoft,
     borderColor: "#9fcfbd",
-    borderRadius: 8,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    marginTop: 20,
+    marginTop: theme.spacing.xl,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   confirmationText: {
-    color: "#0f766e",
+    color: theme.colors.sage,
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "900",
   },
 });

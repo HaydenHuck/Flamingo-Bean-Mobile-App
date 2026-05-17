@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useCart } from "../contexts/CartContext";
+import { theme } from "../theme";
 
 interface CartHeaderButtonProps {
   onPress: () => void;
@@ -23,9 +24,9 @@ export function CartHeaderButton({ onPress }: CartHeaderButtonProps) {
 const styles = StyleSheet.create({
   button: {
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     flexDirection: "row",
     gap: 7,
@@ -33,22 +34,21 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   buttonText: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
     fontSize: 14,
     fontWeight: "900",
   },
   badge: {
     alignItems: "center",
-    backgroundColor: "#d45d4c",
-    borderRadius: 8,
+    backgroundColor: theme.colors.flamingo,
+    borderRadius: theme.radius.md,
     minWidth: 18,
     paddingHorizontal: 5,
     paddingVertical: 2,
   },
   badgeText: {
-    color: "#ffffff",
+    color: theme.colors.surface,
     fontSize: 12,
     fontWeight: "900",
   },
 });
-

@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { theme } from "../theme";
 import type { Product } from "../types/product";
 
 interface ProductCardProps {
@@ -20,12 +21,15 @@ export function ProductCard({ product, onPress }: ProductCardProps) {
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}
     >
+      <View style={styles.cardAccent} />
       <View style={styles.headerRow}>
         <View style={styles.titleGroup}>
           <Text style={styles.category}>{product.category}</Text>
           <Text style={styles.name}>{product.name}</Text>
         </View>
-        <Text style={styles.price}>{currencyFormatter.format(product.price)}</Text>
+        <View style={styles.pricePill}>
+          <Text style={styles.price}>{currencyFormatter.format(product.price)}</Text>
+        </View>
       </View>
 
       <Text style={styles.description}>{product.description}</Text>
@@ -50,78 +54,94 @@ export function ProductCard({ product, onPress }: ProductCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    marginBottom: 14,
-    padding: 16,
-    shadowColor: "#16322d",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
+    marginBottom: theme.spacing.lg,
+    overflow: "hidden",
+    padding: theme.spacing.lg,
+    ...theme.shadows.card,
+  },
+  cardAccent: {
+    backgroundColor: theme.colors.flamingo,
+    height: 4,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
   },
   cardPressed: {
-    opacity: 0.82,
+    opacity: 0.88,
     transform: [{ scale: 0.995 }],
   },
   headerRow: {
     alignItems: "flex-start",
     flexDirection: "row",
-    gap: 12,
+    gap: theme.spacing.md,
     justifyContent: "space-between",
+    paddingTop: theme.spacing.xs,
   },
   titleGroup: {
     flex: 1,
   },
   category: {
-    color: "#d45d4c",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.4,
-    marginBottom: 4,
+    color: theme.colors.flamingoDark,
+    fontSize: theme.typography.eyebrow,
+    fontWeight: "900",
+    letterSpacing: 0,
+    marginBottom: theme.spacing.xs,
     textTransform: "uppercase",
   },
   name: {
-    color: "#18211f",
-    fontSize: 20,
-    fontWeight: "700",
-    lineHeight: 25,
+    color: theme.colors.text,
+    fontSize: theme.typography.title,
+    fontWeight: "900",
+    lineHeight: 27,
+  },
+  pricePill: {
+    backgroundColor: theme.colors.cream,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
   price: {
-    color: "#0f766e",
-    fontSize: 18,
-    fontWeight: "700",
+    color: theme.colors.coffee,
+    fontSize: 17,
+    fontWeight: "900",
   },
   description: {
-    color: "#52635d",
-    fontSize: 15,
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.body,
     lineHeight: 22,
-    marginTop: 10,
+    marginTop: theme.spacing.md,
   },
   details: {
-    borderTopColor: "#d8e3dc",
+    borderTopColor: theme.colors.border,
     borderTopWidth: 1,
     flexDirection: "row",
-    gap: 10,
-    marginTop: 14,
-    paddingTop: 14,
+    flexWrap: "wrap",
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
   },
   detailItem: {
     flex: 1,
+    minWidth: 88,
   },
   detailLabel: {
-    color: "#687b73",
-    fontSize: 12,
-    fontWeight: "700",
-    marginBottom: 3,
+    color: theme.colors.caramel,
+    fontSize: 11,
+    fontWeight: "900",
+    marginBottom: theme.spacing.xs,
     textTransform: "uppercase",
   },
   detailValue: {
-    color: "#25332f",
+    color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "800",
     lineHeight: 19,
   },
 });

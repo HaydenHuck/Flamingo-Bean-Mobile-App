@@ -3,6 +3,7 @@ import { ActivityIndicator, Linking, Pressable, SafeAreaView, ScrollView, StyleS
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { fetchOrder } from "../services/orders";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 
 type PaymentPendingScreenProps = NativeStackScreenProps<RootStackParamList, "PaymentPending">;
@@ -55,7 +56,7 @@ export function PaymentPendingScreen({ navigation, route }: PaymentPendingScreen
           onPress={viewOrderStatus}
         >
           {isLoadingOrder ? (
-            <ActivityIndicator color="#0f766e" />
+            <ActivityIndicator color={theme.colors.coffee} />
           ) : (
             <Text style={styles.secondaryButtonText}>View Order Status</Text>
           )}
@@ -98,47 +99,48 @@ function formatLabel(value: string) {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.background,
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: theme.spacing.xl,
     paddingBottom: 34,
   },
   card: {
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surfaceWarm,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    padding: 20,
+    padding: theme.spacing.xl,
+    ...theme.shadows.soft,
   },
   eyebrow: {
-    color: "#d45d4c",
+    color: theme.colors.flamingoDark,
     fontSize: 13,
     fontWeight: "900",
-    letterSpacing: 0.4,
-    marginBottom: 7,
+    letterSpacing: 0,
+    marginBottom: theme.spacing.sm,
     textTransform: "uppercase",
   },
   heading: {
-    color: "#18211f",
+    color: theme.colors.text,
     fontSize: 29,
     fontWeight: "900",
     lineHeight: 35,
   },
   message: {
-    color: "#52635d",
+    color: theme.colors.textMuted,
     fontSize: 16,
     lineHeight: 23,
     marginTop: 10,
   },
   detailRows: {
-    borderTopColor: "#d8e3dc",
+    borderTopColor: theme.colors.border,
     borderTopWidth: 1,
     marginTop: 18,
   },
   detailRow: {
-    borderBottomColor: "#d8e3dc",
+    borderBottomColor: theme.colors.border,
     borderBottomWidth: 1,
     flexDirection: "row",
     gap: 14,
@@ -146,12 +148,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   detailLabel: {
-    color: "#687b73",
+    color: theme.colors.textMuted,
     fontSize: 14,
     fontWeight: "900",
   },
   detailValue: {
-    color: "#25332f",
+    color: theme.colors.text,
     flex: 1,
     fontSize: 15,
     fontWeight: "900",
@@ -159,21 +161,22 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignItems: "center",
-    backgroundColor: "#0f766e",
-    borderRadius: 8,
+    backgroundColor: theme.colors.coffee,
+    borderRadius: theme.radius.card,
     marginTop: 18,
     paddingVertical: 15,
+    ...theme.shadows.soft,
   },
   primaryButtonText: {
-    color: "#ffffff",
+    color: theme.colors.surface,
     fontSize: 16,
     fontWeight: "900",
   },
   secondaryButton: {
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderColor: "#9fcfbd",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
     marginTop: 12,
     minHeight: 48,
@@ -183,20 +186,20 @@ const styles = StyleSheet.create({
     opacity: 0.72,
   },
   secondaryButtonText: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
     fontSize: 15,
     fontWeight: "900",
   },
   errorCard: {
-    backgroundColor: "#fff7f5",
+    backgroundColor: theme.colors.dangerSoft,
     borderColor: "#f0b8ad",
-    borderRadius: 8,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
     marginTop: 12,
     padding: 13,
   },
   errorText: {
-    color: "#9f3528",
+    color: theme.colors.danger,
     fontSize: 14,
     fontWeight: "800",
     lineHeight: 20,

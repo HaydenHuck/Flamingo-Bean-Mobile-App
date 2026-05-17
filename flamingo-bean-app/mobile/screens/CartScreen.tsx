@@ -14,6 +14,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { useCart, type CartItem } from "../contexts/CartContext";
 import { createCheckout } from "../services/checkout";
+import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
 
 type CartScreenProps = NativeStackScreenProps<RootStackParamList, "Cart">;
@@ -22,6 +23,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
+const ESTIMATED_TAX_RATE = 0.0825;
 
 export function CartScreen({ navigation }: CartScreenProps) {
   const {
@@ -40,6 +42,9 @@ export function CartScreen({ navigation }: CartScreenProps) {
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
 
   const isEmpty = items.length === 0;
+  const subtotal = getCartSubtotal();
+  const estimatedTax = subtotal * ESTIMATED_TAX_RATE;
+  const estimatedTotal = subtotal + estimatedTax;
   const canCheckout = !isEmpty && !isCheckingOut && customerName.trim().length > 0 && customerEmail.trim().length > 0;
 
   async function handleCheckout() {
@@ -74,8 +79,11 @@ export function CartScreen({ navigation }: CartScreenProps) {
       <ScrollView contentContainerStyle={styles.content}>
         {isEmpty ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>Your cart is empty</Text>
-            <Text style={styles.emptyText}>Pick a coffee from the menu and it will show up here.</Text>
+            <View style={styles.emptyIcon}>
+              <Text style={styles.emptyIconText}>FB</Text>
+            </View>
+            <Text style={styles.emptyTitle}>Your cup is waiting</Text>
+            <Text style={styles.emptyText}>Choose a Flamingo Bean roast and we will keep your order here.</Text>
             <Pressable style={styles.menuButton} onPress={() => navigation.navigate("Products")}>
               <Text style={styles.menuButtonText}>Browse Menu</Text>
             </Pressable>
@@ -102,11 +110,10 @@ export function CartScreen({ navigation }: CartScreenProps) {
             </View>
 
             <View style={styles.summaryCard}>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Subtotal</Text>
-                <Text style={styles.summaryValue}>{currencyFormatter.format(getCartSubtotal())}</Text>
-              </View>
-              <Text style={styles.summaryNote}>Taxes, tips, and pickup timing will be handled later.</Text>
+              <SummaryRow label="Subtotal" value={currencyFormatter.format(subtotal)} />
+              <SummaryRow label="Estimated tax" value={currencyFormatter.format(estimatedTax)} />
+              <SummaryRow label="Estimated total" value={currencyFormatter.format(estimatedTotal)} strong />
+              <Text style={styles.summaryNote}>Final total is confirmed by the secure Square checkout.</Text>
             </View>
 
             <View style={styles.checkoutCard}>
@@ -170,7 +177,7 @@ export function CartScreen({ navigation }: CartScreenProps) {
               ]}
             >
               {isCheckingOut ? (
-                <ActivityIndicator color="#ffffff" />
+                <ActivityIndicator color={theme.colors.surface} />
               ) : (
                 <Text style={styles.checkoutButtonText}>Checkout</Text>
               )}
@@ -222,44 +229,76 @@ function CartItemCard({ item, onDecrease, onIncrease, onRemove }: CartItemCardPr
   );
 }
 
+interface SummaryRowProps {
+  label: string;
+  value: string;
+  strong?: boolean;
+}
+
+function SummaryRow({ label, value, strong = false }: SummaryRowProps) {
+  return (
+    <View style={styles.summaryRow}>
+      <Text style={[styles.summaryLabel, strong ? styles.summaryLabelStrong : null]}>{label}</Text>
+      <Text style={[styles.summaryValue, strong ? styles.summaryValueStrong : null]}>{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#f4f7f2",
+    backgroundColor: theme.colors.background,
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: theme.spacing.xl,
     paddingBottom: 34,
   },
   emptyCard: {
-    alignItems: "flex-start",
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: theme.colors.surfaceWarm,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    padding: 20,
+    padding: theme.spacing.xxl,
+    ...theme.shadows.soft,
+  },
+  emptyIcon: {
+    alignItems: "center",
+    backgroundColor: theme.colors.flamingo,
+    borderRadius: theme.radius.md,
+    height: 54,
+    justifyContent: "center",
+    marginBottom: theme.spacing.lg,
+    width: 54,
+  },
+  emptyIconText: {
+    color: theme.colors.surface,
+    fontSize: 17,
+    fontWeight: "900",
   },
   emptyTitle: {
-    color: "#18211f",
-    fontSize: 24,
+    color: theme.colors.text,
+    fontSize: 25,
     fontWeight: "900",
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
+    textAlign: "center",
   },
   emptyText: {
-    color: "#52635d",
+    color: theme.colors.textMuted,
     fontSize: 16,
     lineHeight: 23,
+    textAlign: "center",
   },
   menuButton: {
     alignItems: "center",
-    backgroundColor: "#0f766e",
-    borderRadius: 8,
-    marginTop: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
+    backgroundColor: theme.colors.coffee,
+    borderRadius: theme.radius.card,
+    marginTop: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
   },
   menuButtonText: {
-    color: "#ffffff",
+    color: theme.colors.surface,
     fontSize: 15,
     fontWeight: "900",
   },
@@ -270,7 +309,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   heading: {
-    color: "#18211f",
+    color: theme.colors.text,
     fontSize: 30,
     fontWeight: "900",
   },
@@ -279,7 +318,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   clearButtonText: {
-    color: "#d45d4c",
+    color: theme.colors.flamingoDark,
     fontSize: 14,
     fontWeight: "900",
   },
@@ -287,11 +326,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   itemCard: {
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    padding: 16,
+    padding: theme.spacing.lg,
+    ...theme.shadows.soft,
   },
   itemTopRow: {
     alignItems: "flex-start",
@@ -303,31 +343,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemName: {
-    color: "#18211f",
+    color: theme.colors.text,
     fontSize: 18,
     fontWeight: "900",
     lineHeight: 23,
   },
   itemMeta: {
-    color: "#687b73",
+    color: theme.colors.caramel,
     fontSize: 14,
     fontWeight: "800",
     marginTop: 4,
   },
   unitPrice: {
-    color: "#52635d",
+    color: theme.colors.textMuted,
     fontSize: 14,
     marginTop: 5,
   },
   lineTotal: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
     fontSize: 17,
     fontWeight: "900",
     marginTop: 2,
   },
   controlsRow: {
     alignItems: "center",
-    borderTopColor: "#d8e3dc",
+    borderTopColor: theme.colors.border,
     borderTopWidth: 1,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -341,22 +381,22 @@ const styles = StyleSheet.create({
   },
   quantityButton: {
     alignItems: "center",
-    backgroundColor: "#e7f4ef",
-    borderColor: "#9fcfbd",
-    borderRadius: 8,
+    backgroundColor: theme.colors.cream,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     height: 34,
     justifyContent: "center",
     width: 34,
   },
   quantityButtonText: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
     fontSize: 20,
     fontWeight: "900",
     lineHeight: 23,
   },
   quantityText: {
-    color: "#18211f",
+    color: theme.colors.text,
     fontSize: 17,
     fontWeight: "900",
     minWidth: 22,
@@ -367,77 +407,93 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   removeButtonText: {
-    color: "#d45d4c",
+    color: theme.colors.flamingoDark,
     fontSize: 14,
     fontWeight: "900",
   },
   summaryCard: {
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    marginTop: 18,
-    padding: 16,
+    marginTop: theme.spacing.xl,
+    padding: theme.spacing.lg,
+    ...theme.shadows.soft,
   },
   summaryRow: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingVertical: theme.spacing.xs,
   },
   summaryLabel: {
-    color: "#18211f",
-    fontSize: 18,
-    fontWeight: "900",
+    color: theme.colors.textMuted,
+    fontSize: 15,
+    fontWeight: "800",
   },
   summaryValue: {
-    color: "#0f766e",
-    fontSize: 21,
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: "900",
+  },
+  summaryLabelStrong: {
+    color: theme.colors.text,
+    fontSize: 18,
+  },
+  summaryValueStrong: {
+    color: theme.colors.coffee,
+    fontSize: 22,
     fontWeight: "900",
   },
   summaryNote: {
-    color: "#687b73",
+    borderTopColor: theme.colors.border,
+    borderTopWidth: 1,
+    color: theme.colors.textMuted,
     fontSize: 13,
     lineHeight: 19,
-    marginTop: 8,
+    marginTop: theme.spacing.sm,
+    paddingTop: theme.spacing.md,
   },
   checkoutButton: {
     alignItems: "center",
-    backgroundColor: "#0f766e",
-    borderRadius: 8,
-    marginTop: 18,
+    backgroundColor: theme.colors.coffee,
+    borderRadius: theme.radius.card,
+    marginTop: theme.spacing.xl,
     paddingVertical: 15,
+    ...theme.shadows.soft,
   },
   checkoutButtonDisabled: {
-    backgroundColor: "#9aa9a3",
+    backgroundColor: theme.colors.disabled,
   },
   checkoutButtonPressed: {
     opacity: 0.85,
   },
   checkoutButtonText: {
-    color: "#ffffff",
+    color: theme.colors.surface,
     fontSize: 16,
     fontWeight: "900",
   },
   checkoutCard: {
-    backgroundColor: "#ffffff",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
-    marginTop: 18,
-    padding: 16,
+    marginTop: theme.spacing.xl,
+    padding: theme.spacing.lg,
+    ...theme.shadows.soft,
   },
   checkoutTitle: {
-    color: "#18211f",
+    color: theme.colors.text,
     fontSize: 18,
     fontWeight: "900",
     marginBottom: 12,
   },
   input: {
-    backgroundColor: "#f8fbf7",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    backgroundColor: theme.colors.surfaceWarm,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
-    color: "#18211f",
+    color: theme.colors.text,
     fontSize: 15,
     marginBottom: 10,
     paddingHorizontal: 13,
@@ -450,48 +506,48 @@ const styles = StyleSheet.create({
   },
   fulfillmentOption: {
     alignItems: "center",
-    borderColor: "#d8e3dc",
-    borderRadius: 8,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     flex: 1,
     paddingVertical: 11,
   },
   fulfillmentOptionSelected: {
-    backgroundColor: "#e7f4ef",
-    borderColor: "#9fcfbd",
+    backgroundColor: theme.colors.cream,
+    borderColor: theme.colors.borderStrong,
   },
   fulfillmentText: {
-    color: "#52635d",
+    color: theme.colors.textMuted,
     fontSize: 15,
     fontWeight: "900",
   },
   fulfillmentTextSelected: {
-    color: "#0f766e",
+    color: theme.colors.coffee,
   },
   errorCard: {
-    backgroundColor: "#fff7f5",
+    backgroundColor: theme.colors.dangerSoft,
     borderColor: "#f0b8ad",
-    borderRadius: 8,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
     marginTop: 14,
     padding: 13,
   },
   errorText: {
-    color: "#9f3528",
+    color: theme.colors.danger,
     fontSize: 14,
     fontWeight: "800",
     lineHeight: 20,
   },
   checkoutMessageCard: {
-    backgroundColor: "#e7f4ef",
+    backgroundColor: theme.colors.sageSoft,
     borderColor: "#9fcfbd",
-    borderRadius: 8,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
     marginTop: 14,
     padding: 13,
   },
   checkoutMessageText: {
-    color: "#0f766e",
+    color: theme.colors.sage,
     fontSize: 14,
     fontWeight: "900",
     lineHeight: 20,
