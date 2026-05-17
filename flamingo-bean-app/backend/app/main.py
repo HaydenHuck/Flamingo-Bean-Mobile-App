@@ -7,6 +7,7 @@ from app.database import SessionLocal, init_db
 from app.routes.admin import router as admin_router
 from app.routes.admin_auth import router as admin_auth_router
 from app.routes.checkout import router as checkout_router
+from app.routes.customer import router as customer_router
 from app.routes.orders import router as orders_router
 from app.routes.products import router as products_router
 from app.routes.webhooks import router as webhooks_router
@@ -37,6 +38,8 @@ allowed_origins = [
     "http://127.0.0.1:3000",
     "http://localhost:5176",
     "http://127.0.0.1:5176",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
 ]
 
 app.add_middleware(
@@ -52,6 +55,7 @@ app.include_router(orders_router)
 app.include_router(admin_auth_router)
 app.include_router(admin_router)
 app.include_router(checkout_router)
+app.include_router(customer_router)
 app.include_router(webhooks_router)
 
 

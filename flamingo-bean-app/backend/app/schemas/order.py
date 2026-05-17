@@ -62,6 +62,9 @@ class AdminOrderSummary(BaseModel):
     order_id: str
     customer_name: str
     customer_email: str
+    customer_firebase_uid: str | None = None
+    customer_account_email: str | None = None
+    guest_email: str | None = None
     fulfillment_type: str
     pickup_time: str | None = None
     shipping_name: str | None = None
@@ -91,6 +94,24 @@ class AdminOrderItem(BaseModel):
 
 class AdminOrderDetail(AdminOrderSummary):
     items: list[AdminOrderItem]
+
+
+class CustomerOrderSummary(BaseModel):
+    order_id: str
+    order_number: str
+    status: str
+    payment_status: str
+    fulfillment_type: str
+    pickup_time: str | None = None
+    shipping_fee: float
+    total: float
+    created_at: str
+    updated_at: str
+
+
+class LinkGuestOrdersResponse(BaseModel):
+    linked_count: int
+    message: str
 
 
 class OrderStatusUpdate(BaseModel):

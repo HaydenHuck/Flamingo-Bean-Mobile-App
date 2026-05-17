@@ -29,6 +29,9 @@ export interface AdminOrderSummary {
   order_id: string;
   customer_name: string;
   customer_email: string;
+  customer_firebase_uid: string | null;
+  customer_account_email: string | null;
+  guest_email: string | null;
   fulfillment_type: string;
   pickup_time: string | null;
   shipping_name: string | null;

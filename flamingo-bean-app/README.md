@@ -4,14 +4,14 @@ Flamingo Bean is a production-minded mobile ordering system for a real coffee bu
 
 ## Project Structure
 
-- `backend/`: FastAPI API with MySQL persistence, Square sandbox checkout, Square webhook confirmation, JWT admin authentication, products, orders, and admin routes.
-- `mobile/`: Expo React Native + TypeScript customer app for browsing products, cart, Square checkout, and order tracking.
+- `backend/`: FastAPI API with MySQL persistence, Square sandbox checkout, Square webhook confirmation, Firebase customer token verification, JWT admin authentication, products, orders, and admin routes.
+- `mobile/`: Expo React Native + TypeScript customer app for browsing products, optional Firebase customer accounts, cart, Square checkout, My Orders, and order tracking.
 - `admin/`: React + TypeScript Vite web dashboard for cafe staff to manage orders and products.
 
 ## Tech Stack
 
-- Backend: Python, FastAPI, SQLAlchemy, MySQL, JWT auth.
-- Customer app: React Native, Expo, TypeScript.
+- Backend: Python, FastAPI, SQLAlchemy, MySQL, Firebase Admin, JWT auth.
+- Customer app: React Native, Expo, TypeScript, Firebase Auth.
 - Staff dashboard: React, Vite, TypeScript.
 - Payments: Square sandbox hosted checkout and webhook payment confirmation.
 
@@ -19,6 +19,8 @@ Flamingo Bean is a production-minded mobile ordering system for a real coffee bu
 
 - Customer menu browsing and product details.
 - Cart, quantity controls, and Square-hosted sandbox checkout.
+- Optional customer email/password accounts with Firebase Auth.
+- Logged-in customer My Orders views backed by MySQL orders.
 - Public customer order tracking with payment and fulfillment status refresh.
 - Protected admin login.
 - Staff order list, order detail, and order status updates.
@@ -34,7 +36,8 @@ Each app has its own README with setup and run instructions.
 
 ## Notes
 
-- Customer routes remain public.
+- Customer checkout and public order tracking remain available to guests.
+- Customer account routes use Firebase ID tokens.
 - Admin API routes are protected by JWT.
-- Square secrets, JWT secrets, and database credentials belong only in backend environment files.
+- Square secrets, JWT secrets, Firebase service account JSON, and database credentials belong only in backend environment files.
 - The admin dashboard stores a JWT in browser `localStorage` for local development. This can be hardened before production deployment.

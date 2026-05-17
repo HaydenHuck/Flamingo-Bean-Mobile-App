@@ -47,6 +47,14 @@ export function ProductsScreen({ navigation }: ProductsScreenProps) {
           <Text style={styles.brand}>Flamingo Bean</Text>
           <Text style={styles.heading}>Coffee Menu</Text>
           <Text style={styles.subheading}>Fresh-roasted coffee for pickup and mobile ordering.</Text>
+          <View style={styles.heroActions}>
+            <Pressable style={styles.heroActionButton} onPress={() => navigation.navigate("MyOrders")}>
+              <Text style={styles.heroActionText}>My Orders</Text>
+            </Pressable>
+            <Pressable style={styles.heroActionButtonSecondary} onPress={() => navigation.navigate("Account")}>
+              <Text style={styles.heroActionTextSecondary}>Account</Text>
+            </Pressable>
+          </View>
         </View>
 
         {isLoading ? (
@@ -147,7 +155,37 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     marginTop: theme.spacing.sm,
   },
-
+  heroActions: {
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
+  },
+  heroActionButton: {
+    alignItems: "center",
+    backgroundColor: theme.colors.coffee,
+    borderRadius: theme.radius.md,
+    flex: 1,
+    paddingVertical: theme.spacing.md,
+  },
+  heroActionButtonSecondary: {
+    alignItems: "center",
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    flex: 1,
+    paddingVertical: theme.spacing.md,
+  },
+  heroActionText: {
+    color: theme.colors.surface,
+    fontSize: 14,
+    fontWeight: "900",
+  },
+  heroActionTextSecondary: {
+    color: theme.colors.coffee,
+    fontSize: 14,
+    fontWeight: "900",
+  },
   stateContainer: {
     alignItems: "center",
     backgroundColor: theme.colors.surface,

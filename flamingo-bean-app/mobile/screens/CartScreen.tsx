@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Linking,
@@ -13,6 +13,7 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { useCart, type CartItem } from "../contexts/CartContext";
+import { useCustomerAuth } from "../contexts/CustomerAuthContext";
 import { createCheckout } from "../services/checkout";
 import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
@@ -36,8 +37,9 @@ export function CartScreen({ navigation }: CartScreenProps) {
     increaseQuantity,
     removeFromCart,
   } = useCart();
+  const { getIdToken, isAuthenticated, user } = useCustomerAuth();
   const [customerName, setCustomerName] = useState("Flamingo Bean Guest");
-  const [customerEmail, setCustomerEmail] = useState("guest@flamingobean.local");
+  const [customerEmail, setCustomerEmail] = useState(user?.email ?? "guest@flamingobean.local");
   const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("pickup");
   const [pickupTime, setPickupTime] = useState("");
   const [shippingName, setShippingName] = useState("");
@@ -58,6 +60,12 @@ export function CartScreen({ navigation }: CartScreenProps) {
   const estimatedTotal = subtotal + estimatedTax + shippingFee;
   const canCheckout = !isEmpty && !isCheckingOut && customerName.trim().length > 0 && customerEmail.trim().length > 0;
 
+  useEffect(() => {
+    if (user?.email && customerEmail === "guest@flamingobean.local") {
+      setCustomerEmail(user.email);
+    }
+  }, [customerEmail, user?.email]);
+
   async function handleCheckout() {
     if (!canCheckout) {
       return;
@@ -74,9 +82,11 @@ export function CartScreen({ navigation }: CartScreenProps) {
       setIsCheckingOut(true);
       setCheckoutError(null);
       setCheckoutMessage("Preparing secure Square checkout...");
+      const firebaseIdToken = isAuthenticated ? await getIdToken() : null;
       const checkout = await createCheckout({
         customerEmail: customerEmail.trim(),
         customerName: customerName.trim(),
+        firebaseIdToken,
         fulfillmentType,
         pickupTime: pickupTime.trim(),
         shippingAddressLine1: shippingAddressLine1.trim(),

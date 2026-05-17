@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useCustomerAuth } from "../contexts/CustomerAuthContext";
 import { fetchOrder } from "../services/orders";
 import { theme } from "../theme";
 import type { RootStackParamList } from "../types/navigation";
@@ -25,6 +26,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 export function OrderConfirmationScreen({ navigation, route }: OrderConfirmationScreenProps) {
+  const { isAuthenticated } = useCustomerAuth();
   const [order, setOrder] = useState<OrderConfirmation>(route.params.order);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,18 @@ export function OrderConfirmationScreen({ navigation, route }: OrderConfirmation
             <Text style={styles.orderNumber}>{order.order_number}</Text>
           </View>
         </View>
+
+        {!isAuthenticated ? (
+          <View style={styles.accountPromptCard}>
+            <Text style={styles.accountPromptTitle}>Create an account to save this order and view future updates.</Text>
+            <Text style={styles.accountPromptText}>
+              Use the same email from checkout, then link guest orders from your account.
+            </Text>
+            <Pressable style={styles.accountPromptButton} onPress={() => navigation.navigate("CustomerSignup")}>
+              <Text style={styles.accountPromptButtonText}>Create Account</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         <View style={styles.statusCard}>
           <View style={styles.statusTopRow}>
@@ -330,6 +344,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: theme.spacing.xl,
     ...theme.shadows.soft,
+  },
+  accountPromptCard: {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.card,
+    borderWidth: 1,
+    marginTop: theme.spacing.xl,
+    padding: theme.spacing.lg,
+    ...theme.shadows.soft,
+  },
+  accountPromptTitle: {
+    color: theme.colors.text,
+    fontSize: 17,
+    fontWeight: "900",
+    lineHeight: 22,
+  },
+  accountPromptText: {
+    color: theme.colors.textMuted,
+    fontSize: 14,
+    fontWeight: "800",
+    lineHeight: 20,
+    marginTop: theme.spacing.sm,
+  },
+  accountPromptButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: theme.colors.coffee,
+    borderRadius: theme.radius.md,
+    marginTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+  },
+  accountPromptButtonText: {
+    color: theme.colors.surface,
+    fontSize: 14,
+    fontWeight: "900",
   },
   eyebrow: {
     color: theme.colors.flamingoDark,

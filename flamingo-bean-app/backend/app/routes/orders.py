@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.order import Order, OrderItem
-from app.schemas.order import OrderConfirmation, OrderCreate, OrderItemResponse
+from app.schemas.order import CustomerOrderSummary, OrderConfirmation, OrderCreate, OrderItemResponse
 
 router = APIRouter(tags=["orders"])
 
@@ -36,6 +36,7 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)) -> OrderConf
         payment_status="paid",
         customer_name=order.customer_name,
         customer_email=order.customer_email,
+        guest_email=order.customer_email.strip().lower(),
         fulfillment_type=order.fulfillment_type,
         pickup_time=clean_optional_text(order.pickup_time) if order.fulfillment_type == PICKUP_FULFILLMENT else None,
         shipping_name=clean_optional_text(order.shipping_name) if is_shipping else None,
@@ -131,6 +132,21 @@ def to_order_confirmation(order: Order) -> OrderConfirmation:
         ],
         subtotal=float(order.subtotal),
         tax=float(order.tax),
+        shipping_fee=float(order.shipping_fee),
+        total=float(order.total),
+        created_at=order.created_at.isoformat(),
+        updated_at=order.updated_at.isoformat(),
+    )
+
+
+def to_customer_order_summary(order: Order) -> CustomerOrderSummary:
+    return CustomerOrderSummary(
+        order_id=order.order_number,
+        order_number=order.order_number,
+        status=order.status,
+        payment_status=order.payment_status,
+        fulfillment_type=order.fulfillment_type,
+        pickup_time=order.pickup_time,
         shipping_fee=float(order.shipping_fee),
         total=float(order.total),
         created_at=order.created_at.isoformat(),

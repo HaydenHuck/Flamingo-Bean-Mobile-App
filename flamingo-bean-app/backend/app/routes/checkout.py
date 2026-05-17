@@ -4,6 +4,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.firebase_auth import FirebaseUser, get_optional_current_customer
 from app.database import get_db
 from app.models.order import Order, OrderItem
 from app.schemas.checkout import CheckoutCreate, CheckoutCreateResponse
@@ -22,12 +23,16 @@ router = APIRouter(tags=["checkout"])
 
 
 @router.post("/checkout/create", response_model=CheckoutCreateResponse, status_code=201)
-def create_checkout(checkout: CheckoutCreate, db: Session = Depends(get_db)) -> CheckoutCreateResponse:
+def create_checkout(
+    checkout: CheckoutCreate,
+    db: Session = Depends(get_db),
+    current_customer: FirebaseUser | None = Depends(get_optional_current_customer),
+) -> CheckoutCreateResponse:
     if not checkout.items:
         raise HTTPException(status_code=400, detail="Checkout must include at least one item.")
 
     validate_fulfillment_details(checkout)
-    db_order = create_pending_order(checkout, db)
+    db_order = create_pending_order(checkout, db, current_customer)
 
     try:
         square_payment_link = create_payment_link(
@@ -58,7 +63,11 @@ def create_checkout(checkout: CheckoutCreate, db: Session = Depends(get_db)) -> 
     )
 
 
-def create_pending_order(checkout: CheckoutCreate, db: Session) -> Order:
+def create_pending_order(
+    checkout: CheckoutCreate,
+    db: Session,
+    current_customer: FirebaseUser | None = None,
+) -> Order:
     subtotal = money(sum(Decimal(str(item.price)) * item.quantity for item in checkout.items))
     tax = money(subtotal * TAX_RATE)
     shipping_fee = get_shipping_fee(checkout.fulfillment_type)
@@ -72,6 +81,9 @@ def create_pending_order(checkout: CheckoutCreate, db: Session) -> Order:
         payment_status="pending_payment",
         customer_name=checkout.customer_name,
         customer_email=checkout.customer_email,
+        customer_firebase_uid=current_customer.uid if current_customer else None,
+        customer_account_email=current_customer.email if current_customer else None,
+        guest_email=None if current_customer else checkout.customer_email.strip().lower(),
         fulfillment_type=checkout.fulfillment_type,
         pickup_time=clean_optional_text(checkout.pickup_time)
         if checkout.fulfillment_type == PICKUP_FULFILLMENT

@@ -112,8 +112,33 @@ async function apiRequest<T>(path: string, options: RequestInit = {}, token?: st
 async function getErrorMessage(response: Response) {
   try {
     const data = await response.json();
-    return data.detail || "The admin API request failed.";
+    return formatErrorDetail(data.detail);
   } catch {
     return "The admin API request failed.";
   }
+}
+
+function formatErrorDetail(detail: unknown) {
+  if (typeof detail === "string") {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => {
+        if (typeof item === "string") {
+          return item;
+        }
+
+        if (item && typeof item === "object" && "msg" in item) {
+          const location = "loc" in item && Array.isArray(item.loc) ? `${item.loc.join(".")}: ` : "";
+          return `${location}${String(item.msg)}`;
+        }
+
+        return "Invalid request.";
+      })
+      .join(" ");
+  }
+
+  return "The admin API request failed.";
 }

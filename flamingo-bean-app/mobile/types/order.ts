@@ -69,3 +69,21 @@ export interface CheckoutSession {
 }
 
 export interface CreateCheckoutResponse extends CheckoutSession {}
+
+export interface CustomerOrderSummary {
+  order_id: string;
+  order_number: string;
+  status: OrderStatus;
+  payment_status: PaymentStatus;
+  fulfillment_type: string;
+  pickup_time: string | null;
+  shipping_fee: number;
+  total: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LinkGuestOrdersResponse {
+  linked_count: number;
+  message: string;
+}

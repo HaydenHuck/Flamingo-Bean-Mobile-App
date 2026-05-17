@@ -5,6 +5,7 @@ import type { CreateCheckoutResponse, CreateOrderRequest, OrderItemRequest } fro
 interface CreateCheckoutInput {
   customerName: string;
   customerEmail: string;
+  firebaseIdToken?: string | null;
   fulfillmentType: string;
   pickupTime?: string;
   shippingName?: string;
@@ -36,6 +37,7 @@ export async function createCheckout(input: CreateCheckoutInput): Promise<Create
   const response = await fetch(`${API_BASE_URL}/checkout/create`, {
     body: JSON.stringify(payload),
     headers: {
+      ...(input.firebaseIdToken ? { Authorization: `Bearer ${input.firebaseIdToken}` } : {}),
       "Content-Type": "application/json",
     },
     method: "POST",

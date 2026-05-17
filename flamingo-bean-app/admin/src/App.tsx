@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 
 import {
+  ApiError,
   createAdminProduct,
   fetchAdminOrder,
   fetchAdminOrders,
@@ -186,8 +187,12 @@ function LoginPage() {
       setIsSubmitting(true);
       setError(null);
       await login(email, password);
-    } catch {
-      setError("Unable to sign in. Check your admin email and password.");
+    } catch (loginError) {
+      setError(
+        loginError instanceof ApiError
+          ? `Unable to sign in: ${loginError.message}`
+          : "Unable to sign in. Check your admin email and password.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -427,6 +432,9 @@ function OrderDetailPage({ orderId, token }: { orderId: string; token: string })
               <h2>Customer</h2>
               <DetailRow label="Name" value={order.customer_name} />
               <DetailRow label="Email" value={order.customer_email} />
+              {order.customer_account_email ? (
+                <DetailRow label="Account email" value={order.customer_account_email} />
+              ) : null}
               <DetailRow label="Fulfillment" value={formatLabel(order.fulfillment_type)} />
               <DetailRow label="Created" value={formatDate(order.created_at)} />
             </section>
