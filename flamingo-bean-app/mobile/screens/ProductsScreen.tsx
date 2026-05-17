@@ -44,25 +44,9 @@ export function ProductsScreen({ navigation }: ProductsScreenProps) {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
-          <View style={styles.brandRow}>
-            <View style={styles.brandMark}>
-              <Text style={styles.brandMarkText}>FB</Text>
-            </View>
-            <View style={styles.brandCopy}>
-              <Text style={styles.brand}>Flamingo Bean</Text>
-              <Text style={styles.welcome}>Welcome back</Text>
-            </View>
-          </View>
-          <Text style={styles.heading}>Fresh coffee, ready when you are.</Text>
-          <Text style={styles.subheading}>Order small-batch favorites for pickup from the Flamingo Bean bar.</Text>
-          <View style={styles.adminActions}>
-            <Pressable style={styles.adminButton} onPress={() => navigation.navigate("AdminOrders")}>
-              <Text style={styles.adminButtonText}>Admin Orders</Text>
-            </Pressable>
-            <Pressable style={styles.adminButton} onPress={() => navigation.navigate("AdminProducts")}>
-              <Text style={styles.adminButtonText}>Admin Products</Text>
-            </Pressable>
-          </View>
+          <Text style={styles.brand}>Flamingo Bean</Text>
+          <Text style={styles.heading}>Coffee Menu</Text>
+          <Text style={styles.subheading}>Fresh-roasted coffee for pickup and mobile ordering.</Text>
         </View>
 
         {isLoading ? (
@@ -163,26 +147,7 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     marginTop: theme.spacing.sm,
   },
-  adminActions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing.sm,
-    marginTop: theme.spacing.lg,
-  },
-  adminButton: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-  },
-  adminButtonText: {
-    color: theme.colors.coffee,
-    fontSize: 14,
-    fontWeight: "900",
-  },
+
   stateContainer: {
     alignItems: "center",
     backgroundColor: theme.colors.surface,

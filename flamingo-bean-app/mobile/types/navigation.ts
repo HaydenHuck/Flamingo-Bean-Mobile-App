@@ -13,14 +13,4 @@ export type RootStackParamList = {
   PaymentPending: {
     checkout: CheckoutSession;
   };
-  AdminOrders: undefined;
-  AdminOrderDetail: {
-    orderId: string;
-  };
-  AdminProducts: undefined;
-  AdminProductForm:
-    | {
-        product?: Product;
-      }
-    | undefined;
 };

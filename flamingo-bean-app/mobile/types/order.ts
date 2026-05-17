@@ -52,29 +52,3 @@ export interface CheckoutSession {
 }
 
 export interface CreateCheckoutResponse extends CheckoutSession {}
-
-export interface AdminOrderSummary {
-  order_id: string;
-  customer_name: string;
-  customer_email: string;
-  fulfillment_type: string;
-  status: OrderStatus;
-  payment_status: PaymentStatus;
-  subtotal: number;
-  tax: number;
-  total: number;
-  created_at: string;
-}
-
-export interface AdminOrderItem {
-  product_id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  size: string;
-  line_total: number;
-}
-
-export interface AdminOrderDetail extends AdminOrderSummary {
-  items: AdminOrderItem[];
-}
