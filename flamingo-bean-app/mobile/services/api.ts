@@ -10,17 +10,6 @@ export class ApiError extends Error {
   }
 }
 
-export function createAuthHeaders(accessToken: string, extraHeaders: Record<string, string> = {}) {
-  return {
-    Authorization: `Bearer ${accessToken}`,
-    ...extraHeaders,
-  };
-}
-
 export function throwApiError(response: Response, message: string): never {
   throw new ApiError(message, response.status);
-}
-
-export function isAuthError(error: unknown) {
-  return error instanceof ApiError && (error.status === 401 || error.status === 403);
 }

@@ -52,12 +52,6 @@ The mobile checkout flow calls the backend `POST /checkout/create` endpoint. The
 
 The app opens that URL with the platform browser and shows a pending payment screen. Square payment confirmation is handled by the backend webhook.
 
-## Admin Login
+## Staff Dashboard
 
-Admin Orders and Admin Products require a backend admin account. Create one from the backend folder with:
-
-```bash
-python scripts/create_admin.py
-```
-
-The admin token is stored through a small storage abstraction: web uses `localStorage`, and native Expo currently keeps the token in memory for the session.
+Staff order and product management now lives in the separate React web app in `../admin`. The mobile app is the customer ordering experience.

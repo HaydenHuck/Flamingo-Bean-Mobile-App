@@ -1,19 +1,40 @@
 # Flamingo Bean App
 
-Flamingo Bean is a production-oriented mobile ordering system for a real coffee business. The goal is to support customer ordering from a React Native mobile app, backed by a Python API and a MySQL database.
+Flamingo Bean is a production-minded mobile ordering system for a real coffee business. The repository is organized as a small monorepo with a customer app, staff dashboard, and backend API.
 
-## Planned Architecture
+## Project Structure
 
-- `mobile/`: Expo and React Native app written in TypeScript. This will contain the customer ordering experience, menu browsing, cart flow, and order status screens.
-- `backend/`: FastAPI service responsible for API routes, business logic, database access, and future integrations.
-- `backend/app/models/`: Database models.
-- `backend/app/routes/`: HTTP route modules.
-- `backend/app/schemas/`: Pydantic request and response schemas.
-- `backend/app/services/`: Business logic and integration code.
-- MySQL: Primary database for menu items, orders, and order item snapshots.
-- Square API: Planned future payment integration. No Square functionality is included yet.
-- Admin dashboard: Planned for a later phase and not included in this initial scaffold.
+- `backend/`: FastAPI API with MySQL persistence, Square sandbox checkout, Square webhook confirmation, JWT admin authentication, products, orders, and admin routes.
+- `mobile/`: Expo React Native + TypeScript customer app for browsing products, cart, Square checkout, and order tracking.
+- `admin/`: React + TypeScript Vite web dashboard for cafe staff to manage orders and products.
 
-## Current Status
+## Tech Stack
 
-This repository currently contains the mobile ordering shell, product browsing, local cart flow, mock checkout flow, and a FastAPI backend with MySQL-backed products and orders.
+- Backend: Python, FastAPI, SQLAlchemy, MySQL, JWT auth.
+- Customer app: React Native, Expo, TypeScript.
+- Staff dashboard: React, Vite, TypeScript.
+- Payments: Square sandbox hosted checkout and webhook payment confirmation.
+
+## Current MVP Features
+
+- Customer menu browsing and product details.
+- Cart, quantity controls, and Square-hosted sandbox checkout.
+- Public customer order tracking with payment and fulfillment status refresh.
+- Protected admin login.
+- Staff order list, order detail, and order status updates.
+- Staff product list, add/edit product, and enable/disable product.
+
+## Local Development
+
+1. Start the backend from `backend/` after configuring `backend/.env`.
+2. Start the customer app from `mobile/` with Expo.
+3. Start the staff dashboard from `admin/` with Vite.
+
+Each app has its own README with setup and run instructions.
+
+## Notes
+
+- Customer routes remain public.
+- Admin API routes are protected by JWT.
+- Square secrets, JWT secrets, and database credentials belong only in backend environment files.
+- The admin dashboard stores a JWT in browser `localStorage` for local development. This can be hardened before production deployment.
